@@ -3,595 +3,378 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventário de Caixas</title>
+<title>Inventário</title>
 <style>
 :root {
-  --primary: #4F46E5;
-  --primary-light: #818CF8;
-  --secondary: #7C3AED;
+  --primary: #6366F1;
+  --primary-dark: #4F46E5;
+  --primary-light: #EEF2FF;
   --success: #10B981;
+  --success-light: #ECFDF5;
   --warning: #F59E0B;
+  --warning-light: #FFFBEB;
   --danger: #EF4444;
+  --danger-light: #FEF2F2;
   --info: #3B82F6;
+  --info-light: #EFF6FF;
   --bg: #F1F5F9;
   --card: #FFFFFF;
-  --text: #1E293B;
+  --text: #0F172A;
   --muted: #64748B;
   --border: #E2E8F0;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-  --radius: 10px;
-  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-a { color: var(--primary); text-decoration: none; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* NAV */
-.navbar {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow);
-  flex-wrap: wrap;
-  min-height: 56px;
-}
-.navbar-brand {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--primary);
-  padding: 0.75rem 0;
-  margin-right: 0.5rem;
-  white-space: nowrap;
-}
-.nav-tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; }
-.nav-tab {
-  padding: 0.5rem 0.85rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--muted);
-  transition: all 0.15s;
-  border: none;
-  background: none;
-  white-space: nowrap;
-}
-.nav-tab:hover { background: var(--bg); color: var(--text); }
-.nav-tab.active { background: var(--primary); color: #fff; }
+/* ── NAV ── */
+.nav{background:var(--card);border-bottom:1px solid var(--border);box-shadow:var(--shadow);position:sticky;top:0;z-index:200}
+.nav-top{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;flex-wrap:wrap}
+.nav-brand{font-weight:800;font-size:1.1rem;color:var(--primary);white-space:nowrap;margin-right:.25rem}
+.nav-tabs{display:flex;gap:.2rem;flex-wrap:wrap;flex:1}
+.tab{padding:.4rem .75rem;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;font-size:.83rem;font-weight:500;color:var(--muted);transition:all .15s;white-space:nowrap;position:relative}
+.tab:hover{background:var(--bg);color:var(--text)}
+.tab.active{background:var(--primary);color:#fff}
+.badge-pill{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:.65rem;font-weight:700;padding:1px 5px;border-radius:99px;min-width:16px;text-align:center}
 
-/* MAIN */
-.main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; }
-.section { display: none; }
-.section.active { display: block; }
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-.section-title { font-size: 1.4rem; font-weight: 700; }
+/* ── LAYOUT ── */
+.main{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
+.section{display:none}.section.active{display:block}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem}
+.sec-title{font-size:1.35rem;font-weight:800}
 
-/* BUTTONS */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-primary:hover { background: #4338CA; }
-.btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-.btn-secondary:hover { background: var(--border); }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-danger:hover { background: #DC2626; }
-.btn-success { background: var(--success); color: #fff; }
-.btn-success:hover { background: #059669; }
-.btn-warning { background: var(--warning); color: #fff; }
-.btn-warning:hover { background: #D97706; }
-.btn-info { background: var(--info); color: #fff; }
-.btn-info:hover { background: #2563EB; }
-.btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; }
-.btn-icon { padding: 0.35rem 0.5rem; }
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem 1rem;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:.84rem;font-weight:600;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{background:var(--border)}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#059669}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#DC2626}
+.btn-warning{background:var(--warning);color:#fff}.btn-warning:hover{background:#D97706}
+.btn-info{background:var(--info);color:#fff}.btn-info:hover{background:#2563EB}
+.btn-ghost{background:none;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-sm{padding:.3rem .65rem;font-size:.78rem}
+.btn-xs{padding:.2rem .5rem;font-size:.72rem}
 
-/* CARDS */
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem;
-}
-.card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  gap: 0.5rem;
-}
-.card-title { font-weight: 700; font-size: 1rem; }
-.card-subtitle { font-size: 0.82rem; color: var(--muted); margin-top: 0.15rem; }
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.25rem}
+.card+.card{margin-top:1rem}
 
-/* GRID */
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-.grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-.grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.75rem}
 
-/* TAGS */
-.tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
-.tag {
-  display: inline-block;
-  padding: 0.18rem 0.55rem;
-  border-radius: 99px;
-  font-size: 0.73rem;
-  font-weight: 500;
-}
-.tag-primary { background: #EEF2FF; color: var(--primary); }
-.tag-success { background: #ECFDF5; color: #047857; }
-.tag-warning { background: #FFFBEB; color: #92400E; }
-.tag-danger { background: #FEF2F2; color: #991B1B; }
-.tag-info { background: #EFF6FF; color: #1D4ED8; }
-.tag-gray { background: #F1F5F9; color: var(--muted); }
-.tag-purple { background: #F5F3FF; color: #6D28D9; }
+/* ── FORM ── */
+.fg{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem}
+.fg label{font-size:.8rem;font-weight:600;color:var(--text)}
+input[type=text],input[type=number],input[type=search],select,textarea{width:100%;padding:.5rem .75rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.9rem;color:var(--text);background:var(--card);font-family:inherit;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
 
-/* BADGE */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.6rem;
-  border-radius: 99px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.badge-novo { background: #ECFDF5; color: #047857; }
-.badge-usado { background: #FFFBEB; color: #92400E; }
-.badge-defeito { background: #FEF2F2; color: #991B1B; }
-.badge-desconhecido { background: #F1F5F9; color: var(--muted); }
+/* ── TAGS ── */
+.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.35rem}
+.tag{padding:.18rem .55rem;border-radius:99px;font-size:.72rem;font-weight:600}
+.tag-primary{background:var(--primary-light);color:var(--primary-dark)}
+.tag-gray{background:#F1F5F9;color:var(--muted)}
+.tag-success{background:var(--success-light);color:#047857}
+.tag-warning{background:var(--warning-light);color:#92400E}
+.tag-danger{background:var(--danger-light);color:#991B1B}
+.tag-info{background:var(--info-light);color:#1D4ED8}
+.tag-purple{background:#F5F3FF;color:#6D28D9}
+.badge-state{padding:.2rem .55rem;border-radius:99px;font-size:.73rem;font-weight:600}
+.s-novo{background:var(--success-light);color:#047857}
+.s-usado{background:var(--warning-light);color:#92400E}
+.s-defeito{background:var(--danger-light);color:#991B1B}
+.s-desconhecido{background:#F1F5F9;color:var(--muted)}
 
-/* STATS */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-.stat-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem;
-  text-align: center;
-}
-.stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); line-height: 1; }
-.stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:580px;max-height:92vh;display:flex;flex-direction:column}
+.modal-lg{max-width:720px}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.4rem;border-bottom:1px solid var(--border)}
+.mh-title{font-weight:700;font-size:1rem}
+.mc{padding:1.4rem;overflow-y:auto;flex:1}
+.mf{padding:.9rem 1.4rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.5rem}
+.btn-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);padding:.1rem .3rem;line-height:1}
+.btn-close:hover{color:var(--text)}
 
-/* TABLE */
-.table-wrapper { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
-table { width: 100%; border-collapse: collapse; background: var(--card); }
-thead { background: var(--bg); }
-th { padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-td { padding: 0.75rem 1rem; font-size: 0.88rem; border-top: 1px solid var(--border); vertical-align: middle; }
-tr:hover td { background: #FAFBFF; }
-.td-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+/* ── TOAST ── */
+.toasts{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem}
+.toast{padding:.7rem 1.1rem;border-radius:var(--radius-sm);color:#fff;font-size:.86rem;font-weight:500;box-shadow:var(--shadow-md);animation:toastIn .2s ease;max-width:300px}
+.t-success{background:var(--success)}.t-error{background:var(--danger)}.t-info{background:var(--info)}
+@keyframes toastIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
 
-/* FILTERS */
-.filters {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-  background: var(--card);
-  padding: 1rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-.filter-group { display: flex; flex-direction: column; gap: 0.25rem; min-width: 140px; flex: 1; }
-.filter-group label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+/* ── SEARCH SCREEN ── */
+.search-hero{text-align:center;padding:2.5rem 1rem 1.5rem}
+.search-hero h2{font-size:1.6rem;font-weight:800;margin-bottom:.4rem}
+.search-hero p{color:var(--muted);font-size:.92rem;margin-bottom:1.5rem}
+.search-bar{display:flex;gap:.5rem;max-width:560px;margin:0 auto}
+.search-bar input{flex:1;font-size:1rem;padding:.65rem 1rem;border-radius:var(--radius-sm);border:1.5px solid var(--border)}
+.search-bar input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.1);outline:none}
+.quick-stats{display:flex;justify-content:center;gap:1.5rem;margin-top:1.25rem;flex-wrap:wrap}
+.qs{text-align:center;cursor:pointer}
+.qs-val{font-size:1.6rem;font-weight:800;color:var(--primary);line-height:1}
+.qs-lbl{font-size:.75rem;color:var(--muted)}
+.search-results{margin-top:1.5rem}
+.sr-group{margin-bottom:1.25rem}
+.sr-group-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.sr-item{background:var(--card);border-radius:var(--radius-sm);padding:.75rem 1rem;margin-bottom:.4rem;box-shadow:var(--shadow);display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;cursor:pointer;transition:box-shadow .15s}
+.sr-item:hover{box-shadow:var(--shadow-md)}
+.sr-name{font-weight:600;font-size:.92rem}
+.sr-meta{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+.no-results{text-align:center;padding:2.5rem;color:var(--muted);font-size:.9rem}
 
-/* INPUTS */
-input[type=text], input[type=number], input[type=search], select, textarea {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-  color: var(--text);
-  background: var(--card);
-  transition: border-color 0.15s;
-  font-family: inherit;
-}
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-}
-textarea { resize: vertical; min-height: 80px; }
-.form-group { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
-.form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-@media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+/* ── ORGANIZAR SCREEN ── */
+.org-progress{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.progress-bar-wrap{flex:1;min-width:160px;background:var(--bg);border-radius:99px;height:10px;overflow:hidden}
+.progress-bar{height:100%;background:var(--success);border-radius:99px;transition:width .4s ease}
+.org-quick-add{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem 1.25rem;margin-bottom:1rem}
+.quick-add-row{display:flex;gap:.5rem;flex-wrap:wrap}
+.quick-add-row input{flex:2;min-width:140px}
+.quick-add-row select{flex:1;min-width:120px}
+.import-toggle{color:var(--primary);font-size:.84rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.3rem;margin-top:.6rem;background:none;border:none;padding:0;font-family:inherit}
+.import-area{margin-top:.75rem;display:none}
+.import-area.open{display:block}
+.import-preview{margin-top:.75rem;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.import-preview table{width:100%;border-collapse:collapse;font-size:.83rem;background:var(--card)}
+.import-preview th{background:var(--bg);padding:.5rem .75rem;text-align:left;font-weight:600;color:var(--muted);font-size:.75rem;text-transform:uppercase}
+.import-preview td{padding:.5rem .75rem;border-top:1px solid var(--border)}
+.import-preview td input,.import-preview td select{padding:.25rem .5rem;font-size:.8rem}
+.cat-group{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:.75rem;overflow:hidden}
+.cat-header{display:flex;align-items:center;padding:.9rem 1.1rem;gap:.75rem;cursor:pointer;user-select:none}
+.cat-header:hover{background:#FAFBFF}
+.cat-icon{font-size:1.1rem}
+.cat-title{font-weight:700;font-size:.95rem;flex:1}
+.cat-count{font-size:.8rem;color:var(--muted)}
+.cat-assign{display:flex;align-items:center;gap:.4rem;margin-left:auto}
+.cat-assign select{padding:.3rem .5rem;font-size:.8rem;min-width:120px}
+.cat-chevron{color:var(--muted);font-size:.85rem;transition:transform .2s}
+.cat-chevron.open{transform:rotate(180deg)}
+.cat-items{display:none;border-top:1px solid var(--border)}
+.cat-items.open{display:block}
+.cat-item-row{display:flex;align-items:center;padding:.55rem 1.1rem;gap:.75rem;border-bottom:1px solid var(--bg)}
+.cat-item-row:last-child{border-bottom:none}
+.cat-item-row:hover{background:#FAFBFF}
+.cat-item-name{flex:1;font-size:.88rem}
+.cat-item-qty{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.empty-org{text-align:center;padding:2.5rem;color:var(--muted)}
+.done-banner{background:var(--success-light);border:1.5px solid var(--success);border-radius:var(--radius);padding:1.5rem;text-align:center}
+.done-banner h3{font-size:1.1rem;font-weight:700;color:#047857}
+.done-banner p{font-size:.88rem;color:#065F46;margin-top:.35rem}
 
-/* MODAL */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-}
-.modal-title { font-weight: 700; font-size: 1.05rem; }
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-  color: var(--muted);
-  line-height: 1;
-  padding: 0.1rem 0.3rem;
-}
-.modal-close:hover { color: var(--text); }
-.modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
-.modal-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
+/* ── BOX CARD ── */
+.box-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.1rem 1.25rem;transition:box-shadow .15s}
+.box-card:hover{box-shadow:var(--shadow-md)}
+.box-card-name{font-size:1.1rem;font-weight:800;color:var(--primary)}
+.box-card-loc{font-size:.8rem;color:var(--muted);margin-top:.15rem}
+.box-card-cat{font-size:.85rem;font-weight:600;margin-top:.3rem}
+.box-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;flex-wrap:wrap;gap:.35rem}
+.box-actions{display:flex;gap:.3rem;flex-wrap:wrap}
 
-/* TOAST */
-.toast-container {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.toast {
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-sm);
-  color: #fff;
-  font-size: 0.88rem;
-  font-weight: 500;
-  box-shadow: var(--shadow-md);
-  animation: slideIn 0.2s ease;
-  max-width: 320px;
-}
-.toast-success { background: var(--success); }
-.toast-error { background: var(--danger); }
-.toast-info { background: var(--info); }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+thead{background:var(--bg)}
+th{padding:.65rem 1rem;text-align:left;font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+td{padding:.65rem 1rem;font-size:.86rem;border-top:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:#FAFBFF}
+.td-act{display:flex;gap:.3rem;flex-wrap:wrap}
 
-/* BOX CARD */
-.box-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  transition: box-shadow 0.15s;
-}
-.box-card:hover { box-shadow: var(--shadow-md); }
-.box-name { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
-.box-location { font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem; }
-.box-category { font-size: 0.88rem; font-weight: 600; }
-.box-items-count { font-size: 0.8rem; color: var(--muted); }
-.box-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem; }
+/* ── FILTERS ── */
+.filters{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:.9rem 1rem;margin-bottom:1rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:flex-end}
+.fi{display:flex;flex-direction:column;gap:.25rem;min-width:130px;flex:1}
+.fi label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 
-/* SEARCH RESULTS */
-.search-section { margin-bottom: 1.5rem; }
-.search-section-title {
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.search-result-item {
-  background: var(--card);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
-  box-shadow: var(--shadow);
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.search-result-name { font-weight: 600; font-size: 0.92rem; }
-.search-result-meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
-.highlight { background: #FEF3C7; border-radius: 2px; padding: 0 2px; }
-.no-results { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.9rem; }
+/* ── LOCATION CARD ── */
+.loc-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.6rem}
+.loc-name{font-weight:700}
+.loc-meta{font-size:.8rem;color:var(--muted);margin-top:.15rem}
 
-/* LABEL */
-.label-card {
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  max-width: 380px;
-}
-.label-box-name { font-size: 1.6rem; font-weight: 900; color: var(--primary); }
-.label-category { font-size: 0.95rem; font-weight: 600; margin: 0.25rem 0; }
-.label-location { font-size: 0.85rem; color: var(--muted); }
-.label-items-list { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
-.label-items-list ul { list-style: disc; padding-left: 1.2rem; font-size: 0.85rem; }
-.label-qr-placeholder {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.qr-box {
-  width: 80px;
-  height: 80px;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  color: var(--muted);
-  text-align: center;
-  flex-shrink: 0;
-}
+/* ── LABEL ── */
+.label-preview-card{background:var(--card);border:2.5px solid var(--border);border-radius:var(--radius);padding:1.4rem;max-width:400px}
+.label-name{font-size:2rem;font-weight:900;color:var(--primary)}
+.label-cat{font-size:.95rem;font-weight:600;margin:.2rem 0}
+.label-loc{font-size:.82rem;color:var(--muted)}
+.label-items-list{margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);font-size:.83rem}
+.label-items-list ul{padding-left:1.2rem}
+.label-qr{display:flex;align-items:center;gap:.9rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.qr-placeholder{width:80px;height:80px;border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--muted);text-align:center;flex-shrink:0}
 
-/* DATA MANAGEMENT */
-.data-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+/* ── DATA SCREEN ── */
+.data-block{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.4rem;margin-bottom:.9rem}
+.data-block h3{font-size:.98rem;font-weight:700;margin-bottom:.4rem}
+.data-block p{font-size:.86rem;color:var(--muted);margin-bottom:.9rem}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:.6rem}
+
+@media(max-width:640px){
+  .grid-2{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .cat-assign{flex-direction:column;align-items:flex-start}
+  .org-progress{flex-direction:column;align-items:flex-start}
 }
-.data-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
-.data-card p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1rem; }
-
-/* DETAILS VIEW */
-.detail-section { margin-bottom: 1.5rem; }
-.detail-section h4 { font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-
-/* EMPTY STATE */
-.empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-.empty-state-icon { font-size: 3rem; margin-bottom: 0.75rem; }
-.empty-state-text { font-size: 0.95rem; }
-
-/* LOCATION CARD */
-.location-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.location-name { font-weight: 700; font-size: 1rem; }
-.location-meta { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
-
-/* SEARCH BAR */
-.search-bar-wrap {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-.search-input-row { display: flex; gap: 0.5rem; }
-.search-input-row input { flex: 1; }
-.search-options { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem; font-size: 0.85rem; }
-.search-option { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; }
-.search-option input { width: auto; }
-
-@media (max-width: 640px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .form-row { grid-template-columns: 1fr; }
-  .modal { max-height: 95vh; }
-}
-@media print {
-  .navbar, .btn, .modal-overlay, .toast-container { display: none !important; }
-  .main { padding: 0; }
-  .section { display: block !important; }
-  .section:not(#labels) { display: none !important; }
+@media print{
+  .nav,.btn,.overlay,.toasts{display:none!important}
+  .main{padding:0}
+  .section{display:none!important}
+  #etiquetas.section{display:block!important}
 }
 </style>
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="navbar-brand">📦 Inventário</div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
-    <button class="nav-tab" onclick="showSection('boxes')">Caixas</button>
-    <button class="nav-tab" onclick="showSection('items')">Itens</button>
-    <button class="nav-tab" onclick="showSection('locations')">Localidades</button>
-    <button class="nav-tab" onclick="showSection('search')">Busca</button>
-    <button class="nav-tab" onclick="showSection('labels')">Etiquetas</button>
-    <button class="nav-tab" onclick="showSection('data')">Dados</button>
+<nav class="nav">
+  <div class="nav-top">
+    <div class="nav-brand">📦 Inventário</div>
+    <div class="nav-tabs">
+      <button class="tab active" onclick="go('inicio')">🔍 Busca</button>
+      <button class="tab" id="tab-organizar" onclick="go('organizar')">📋 Organizar</button>
+      <button class="tab" onclick="go('caixas')">📦 Caixas</button>
+      <button class="tab" onclick="go('itens')">📝 Itens</button>
+      <button class="tab" onclick="go('localidades')">📍 Localidades</button>
+      <button class="tab" onclick="go('etiquetas')">🏷️ Etiquetas</button>
+      <button class="tab" onclick="go('dados')">⚙️ Dados</button>
+    </div>
   </div>
 </nav>
 
-<div class="main">
+<main class="main">
 
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="section active">
-    <div class="section-header">
-      <h1 class="section-title">Dashboard</h1>
+  <!-- ═══ INÍCIO / BUSCA ═══ -->
+  <div id="inicio" class="section active">
+    <div class="search-hero">
+      <h2>Onde está o quê?</h2>
+      <p>Digite o nome do item, categoria, caixa ou localidade</p>
+      <div class="search-bar">
+        <input type="search" id="s-input" placeholder="Ex: ferro de solda, Caixa A, Escritório..." oninput="doSearch()" autofocus>
+      </div>
+      <div class="quick-stats">
+        <div class="qs" onclick="go('caixas')"><div class="qs-val" id="qs-boxes">0</div><div class="qs-lbl">caixas</div></div>
+        <div class="qs" onclick="go('itens')"><div class="qs-val" id="qs-items">0</div><div class="qs-lbl">itens</div></div>
+        <div class="qs" onclick="go('organizar')"><div class="qs-val" id="qs-unassigned" style="color:var(--warning)">0</div><div class="qs-lbl">sem caixa</div></div>
+        <div class="qs" onclick="go('localidades')"><div class="qs-val" id="qs-locs">0</div><div class="qs-lbl">localidades</div></div>
+      </div>
     </div>
-    <div class="stats-grid" id="dashboard-stats"></div>
-    <div class="grid-2" id="dashboard-details"></div>
+    <div id="search-results" class="search-results"></div>
   </div>
 
-  <!-- BOXES -->
-  <div id="boxes" class="section">
-    <div class="section-header">
-      <h1 class="section-title">Caixas</h1>
+  <!-- ═══ ORGANIZAR ═══ -->
+  <div id="organizar" class="section">
+    <div class="sec-header">
+      <h1 class="sec-title">Organizar</h1>
+      <button class="btn btn-primary" onclick="openItemForm(null,null)">+ Novo Item</button>
+    </div>
+
+    <!-- Progress -->
+    <div class="org-progress" id="org-progress"></div>
+
+    <!-- Quick add -->
+    <div class="org-quick-add">
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:.6rem">Adicionar item rapidamente</div>
+      <div class="quick-add-row">
+        <input type="text" id="qa-name" placeholder="Nome do item..." onkeydown="if(event.key==='Enter')qaAdd()">
+        <select id="qa-cat">
+          <option value="">Categoria (opcional)</option>
+        </select>
+        <button class="btn btn-primary" onclick="qaAdd()">+ Adicionar</button>
+      </div>
+      <button class="import-toggle" onclick="toggleImport()">
+        <span id="import-arrow">▶</span> Colar lista de texto
+      </button>
+      <div class="import-area" id="import-area">
+        <textarea id="import-text" rows="6" placeholder="Cole sua lista aqui. Exemplos aceitos:
+
+Caixa A - Escritório
+  cabo usb-c
+  cabo micro usb
+
+arduino uno
+jumpers
+ferro de solda"></textarea>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+          <button class="btn btn-secondary" onclick="previewImport()">👁 Pré-visualizar</button>
+          <button class="btn btn-primary" id="btn-import-confirm" style="display:none" onclick="confirmImport()">✅ Importar tudo</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearImport()">Limpar</button>
+        </div>
+        <div id="import-preview-area"></div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div id="org-categories"></div>
+  </div>
+
+  <!-- ═══ CAIXAS ═══ -->
+  <div id="caixas" class="section">
+    <div class="sec-header">
+      <h1 class="sec-title">Caixas</h1>
       <button class="btn btn-primary" onclick="openBoxForm()">+ Nova Caixa</button>
     </div>
     <div class="filters">
-      <div class="filter-group">
-        <label>Localidade</label>
-        <select id="filter-box-location" onchange="renderBoxes()">
-          <option value="">Todas</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Categoria</label>
-        <select id="filter-box-category" onchange="renderBoxes()">
-          <option value="">Todas</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Buscar</label>
-        <input type="search" id="filter-box-search" placeholder="Nome ou observação..." oninput="renderBoxes()">
-      </div>
+      <div class="fi"><label>Localidade</label>
+        <select id="fb-loc" onchange="renderBoxes()"><option value="">Todas</option></select></div>
+      <div class="fi"><label>Categoria</label>
+        <select id="fb-cat" onchange="renderBoxes()"><option value="">Todas</option></select></div>
+      <div class="fi"><label>Buscar</label>
+        <input type="search" id="fb-q" placeholder="Nome..." oninput="renderBoxes()"></div>
     </div>
     <div class="grid-2" id="boxes-grid"></div>
   </div>
 
-  <!-- ITEMS -->
-  <div id="items" class="section">
-    <div class="section-header">
-      <h1 class="section-title">Itens</h1>
-      <button class="btn btn-primary" onclick="openItemForm()">+ Novo Item</button>
+  <!-- ═══ ITENS ═══ -->
+  <div id="itens" class="section">
+    <div class="sec-header">
+      <h1 class="sec-title">Itens</h1>
+      <button class="btn btn-primary" onclick="openItemForm(null,null)">+ Novo Item</button>
     </div>
     <div class="filters">
-      <div class="filter-group">
-        <label>Caixa</label>
-        <select id="filter-item-box" onchange="renderItems()">
-          <option value="">Todas</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Localidade</label>
-        <select id="filter-item-location" onchange="renderItems()">
-          <option value="">Todas</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Categoria</label>
-        <select id="filter-item-category" onchange="renderItems()">
-          <option value="">Todas</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Estado</label>
-        <select id="filter-item-state" onchange="renderItems()">
+      <div class="fi"><label>Caixa</label>
+        <select id="fi-box" onchange="renderItems()"><option value="">Todas</option></select></div>
+      <div class="fi"><label>Localidade</label>
+        <select id="fi-loc" onchange="renderItems()"><option value="">Todas</option></select></div>
+      <div class="fi"><label>Categoria</label>
+        <select id="fi-cat" onchange="renderItems()"><option value="">Todas</option></select></div>
+      <div class="fi"><label>Estado</label>
+        <select id="fi-state" onchange="renderItems()">
           <option value="">Todos</option>
-          <option value="novo">Novo</option>
-          <option value="usado">Usado</option>
+          <option>novo</option><option>usado</option>
           <option value="com defeito">Com Defeito</option>
-          <option value="desconhecido">Desconhecido</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Buscar</label>
-        <input type="search" id="filter-item-search" placeholder="Nome, tag, sinônimo..." oninput="renderItems()">
-      </div>
+          <option>desconhecido</option>
+        </select></div>
+      <div class="fi"><label>Buscar</label>
+        <input type="search" id="fi-q" placeholder="Nome, tag, sinônimo..." oninput="renderItems()"></div>
     </div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Categoria</th>
-            <th>Caixa</th>
-            <th>Localidade</th>
-            <th>Qtd</th>
-            <th>Estado</th>
-            <th>Posição</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="items-tbody"></tbody>
-      </table>
+    <div class="tbl-wrap">
+      <table><thead><tr>
+        <th>Nome</th><th>Categoria</th><th>Caixa</th><th>Localidade</th>
+        <th>Qtd</th><th>Estado</th><th>Ações</th>
+      </tr></thead>
+      <tbody id="items-tbody"></tbody></table>
     </div>
   </div>
 
-  <!-- LOCATIONS -->
-  <div id="locations" class="section">
-    <div class="section-header">
-      <h1 class="section-title">Localidades</h1>
-      <button class="btn btn-primary" onclick="openLocationForm()">+ Nova Localidade</button>
+  <!-- ═══ LOCALIDADES ═══ -->
+  <div id="localidades" class="section">
+    <div class="sec-header">
+      <h1 class="sec-title">Localidades</h1>
+      <button class="btn btn-primary" onclick="openLocForm()">+ Nova Localidade</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:0.75rem" id="locations-list"></div>
+    <div id="locs-list"></div>
   </div>
 
-  <!-- SEARCH -->
-  <div id="search" class="section">
-    <div class="section-header">
-      <h1 class="section-title">Busca Avançada</h1>
-    </div>
-    <div class="search-bar-wrap">
-      <div class="search-input-row">
-        <input type="search" id="search-input" placeholder="Buscar itens, caixas, localidades..." oninput="performSearch()">
-        <button class="btn btn-primary" onclick="performSearch()">Buscar</button>
-      </div>
-      <div class="search-options">
-        <label class="search-option">
-          <input type="checkbox" id="search-regex" onchange="performSearch()"> Usar Regex
-        </label>
-        <label class="search-option">
-          <input type="checkbox" id="search-fuzzy" checked onchange="performSearch()"> Busca Aproximada (Fuzzy)
-        </label>
-      </div>
-    </div>
-    <div id="search-results"></div>
-  </div>
-
-  <!-- LABELS -->
-  <div id="labels" class="section">
-    <div class="section-header">
-      <h1 class="section-title">Etiquetas</h1>
-    </div>
-    <div class="filters" style="margin-bottom:1.5rem">
-      <div class="filter-group">
-        <label>Selecionar Caixa</label>
-        <select id="label-box-select" onchange="renderLabel()">
-          <option value="">Escolha uma caixa...</option>
-        </select>
-      </div>
+  <!-- ═══ ETIQUETAS ═══ -->
+  <div id="etiquetas" class="section">
+    <div class="sec-header"><h1 class="sec-title">Etiquetas</h1></div>
+    <div class="filters" style="margin-bottom:1.25rem">
+      <div class="fi"><label>Selecionar Caixa</label>
+        <select id="lbl-box" onchange="renderLabel()"><option value="">Escolha...</option></select></div>
       <div style="display:flex;align-items:flex-end">
         <button class="btn btn-primary" onclick="printLabel()">🖨️ Imprimir</button>
       </div>
@@ -599,1131 +382,1107 @@ textarea { resize: vertical; min-height: 80px; }
     <div id="label-preview"></div>
   </div>
 
-  <!-- DATA MANAGEMENT -->
-  <div id="data" class="section">
-    <div class="section-header">
-      <h1 class="section-title">Importar / Exportar</h1>
-    </div>
-    <div class="data-card">
-      <h3>📤 Exportar Dados</h3>
-      <p>Salva todos os dados (localidades, caixas, itens e categorias) em um arquivo JSON.</p>
+  <!-- ═══ DADOS ═══ -->
+  <div id="dados" class="section">
+    <div class="sec-header"><h1 class="sec-title">Importar / Exportar</h1></div>
+    <div class="data-block">
+      <h3>📤 Exportar dados</h3>
+      <p>Salva tudo em um arquivo JSON que pode ser reimportado depois.</p>
       <button class="btn btn-success" onclick="exportData()">Exportar JSON</button>
     </div>
-    <div class="data-card">
-      <h3>📥 Importar Dados</h3>
-      <p>Restaura os dados a partir de um arquivo JSON exportado anteriormente. Os dados atuais serão substituídos.</p>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
-      <button class="btn btn-info" onclick="document.getElementById('import-file').click()">Importar JSON</button>
+    <div class="data-block">
+      <h3>📥 Importar dados</h3>
+      <p>Restaura a partir de um JSON exportado. Os dados atuais serão substituídos.</p>
+      <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importJSON(event)">
+      <button class="btn btn-info" onclick="document.getElementById('imp-file').click()">Importar JSON</button>
     </div>
-    <div class="data-card" style="border:2px solid var(--danger)">
-      <h3 style="color:var(--danger)">🗑️ Limpar Todos os Dados</h3>
-      <p>Remove permanentemente todos os dados. Esta ação não pode ser desfeita.</p>
-      <button class="btn btn-danger" onclick="clearAllData()">Limpar Dados</button>
-    </div>
-  </div>
-
-</div>
-
-<!-- MODAL: BOX -->
-<div class="modal-overlay" id="modal-box">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="modal-box-title">Nova Caixa</span>
-      <button class="modal-close" onclick="closeModal('modal-box')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="box-id">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Nome da Caixa *</label>
-          <input type="text" id="box-name" placeholder="Ex: Caixa A">
-        </div>
-        <div class="form-group">
-          <label>Localidade *</label>
-          <select id="box-location"></select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Categoria Principal</label>
-          <input type="text" id="box-category" placeholder="Ex: Cabos USB">
-        </div>
-        <div class="form-group">
-          <label>Tags <small style="color:var(--muted)">(separadas por vírgula)</small></label>
-          <input type="text" id="box-tags" placeholder="Ex: eletrônica, cabos">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Observações</label>
-        <textarea id="box-observations" placeholder="Observações gerais sobre a caixa..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-box')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveBoxForm()">Salvar</button>
+    <div class="data-block" style="border:2px solid var(--danger)">
+      <h3 style="color:var(--danger)">🗑️ Limpar todos os dados</h3>
+      <p>Remove tudo permanentemente. Não pode ser desfeito.</p>
+      <button class="btn btn-danger" onclick="clearAll()">Limpar dados</button>
     </div>
   </div>
-</div>
 
-<!-- MODAL: ITEM -->
-<div class="modal-overlay" id="modal-item">
+</main>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Item form -->
+<div class="overlay" id="m-item">
   <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="modal-item-title">Novo Item</span>
-      <button class="modal-close" onclick="closeModal('modal-item')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="item-id">
+    <div class="mh"><span class="mh-title" id="m-item-title">Novo Item</span><button class="btn-close" onclick="close('m-item')">×</button></div>
+    <div class="mc">
+      <input type="hidden" id="f-item-id">
       <div class="form-row">
-        <div class="form-group">
-          <label>Nome do Item *</label>
-          <input type="text" id="item-name" placeholder="Ex: Cabo USB-C">
-        </div>
-        <div class="form-group">
-          <label>Categoria</label>
-          <input type="text" id="item-category" placeholder="Ex: Cabos">
-        </div>
+        <div class="fg"><label>Nome *</label><input type="text" id="f-item-name" placeholder="Ex: Cabo USB-C"></div>
+        <div class="fg"><label>Categoria</label><input type="text" id="f-item-cat" placeholder="Ex: Cabos" list="cat-list"><datalist id="cat-list"></datalist></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Caixa</label>
-          <select id="item-box" onchange="updateItemLocation()"></select>
-        </div>
-        <div class="form-group">
-          <label>Localidade</label>
-          <select id="item-location"></select>
-        </div>
+        <div class="fg"><label>Caixa</label><select id="f-item-box" onchange="syncItemLoc()"></select></div>
+        <div class="fg"><label>Localidade</label><select id="f-item-loc"></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Quantidade</label>
-          <input type="number" id="item-quantity" value="1" min="0">
-        </div>
-        <div class="form-group">
-          <label>Estado</label>
-          <select id="item-state">
+        <div class="fg"><label>Quantidade</label><input type="number" id="f-item-qty" value="1" min="0"></div>
+        <div class="fg"><label>Estado</label>
+          <select id="f-item-state">
             <option value="desconhecido">Desconhecido</option>
             <option value="novo">Novo</option>
             <option value="usado">Usado</option>
             <option value="com defeito">Com Defeito</option>
-          </select>
-        </div>
+          </select></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Posição Interna</label>
-          <input type="text" id="item-position" placeholder="Ex: Saquinho A-01">
-        </div>
-        <div class="form-group">
-          <label>Tags <small style="color:var(--muted)">(vírgula)</small></label>
-          <input type="text" id="item-tags" placeholder="Ex: usb, cabo">
-        </div>
+        <div class="fg"><label>Tags <small style="color:var(--muted)">(vírgula)</small></label><input type="text" id="f-item-tags" placeholder="usb, cabo"></div>
+        <div class="fg"><label>Posição interna</label><input type="text" id="f-item-pos" placeholder="Ex: Saquinho A-01"></div>
       </div>
-      <div class="form-group">
-        <label>Sinônimos / Palavras Relacionadas <small style="color:var(--muted)">(vírgula)</small></label>
-        <input type="text" id="item-synonyms" placeholder="Ex: micro usb, carregador, conector">
-      </div>
-      <div class="form-group">
-        <label>Observações</label>
-        <textarea id="item-observations" placeholder="Detalhes adicionais..."></textarea>
-      </div>
+      <div class="fg"><label>Sinônimos <small style="color:var(--muted)">(melhoram a busca)</small></label>
+        <input type="text" id="f-item-syn" placeholder="Ex: carregador, type-c, micro usb"></div>
+      <div class="fg"><label>Observações</label><textarea id="f-item-obs" placeholder="Detalhes adicionais..."></textarea></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-item')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveItemForm()">Salvar</button>
+    <div class="mf">
+      <button class="btn btn-secondary" onclick="close('m-item')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveItem_()">Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: LOCATION -->
-<div class="modal-overlay" id="modal-location">
+<!-- Box form -->
+<div class="overlay" id="m-box">
+  <div class="modal">
+    <div class="mh"><span class="mh-title" id="m-box-title">Nova Caixa</span><button class="btn-close" onclick="close('m-box')">×</button></div>
+    <div class="mc">
+      <input type="hidden" id="f-box-id">
+      <div class="form-row">
+        <div class="fg"><label>Nome *</label><input type="text" id="f-box-name" placeholder="Ex: Caixa A"></div>
+        <div class="fg"><label>Localidade *</label><select id="f-box-loc"></select></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Categoria principal</label><input type="text" id="f-box-cat" placeholder="Ex: Cabos USB"></div>
+        <div class="fg"><label>Tags</label><input type="text" id="f-box-tags" placeholder="eletrônica, cabos"></div>
+      </div>
+      <div class="fg"><label>Observações</label><textarea id="f-box-obs" placeholder="Observações gerais..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-secondary" onclick="close('m-box')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBox_()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Location form -->
+<div class="overlay" id="m-loc">
   <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <span class="modal-title" id="modal-location-title">Nova Localidade</span>
-      <button class="modal-close" onclick="closeModal('modal-location')">&times;</button>
+    <div class="mh"><span class="mh-title" id="m-loc-title">Nova Localidade</span><button class="btn-close" onclick="close('m-loc')">×</button></div>
+    <div class="mc">
+      <input type="hidden" id="f-loc-id">
+      <div class="fg"><label>Nome *</label><input type="text" id="f-loc-name" placeholder="Ex: Escritório"></div>
+      <div class="fg"><label>Descrição</label><textarea id="f-loc-desc" placeholder="Opcional..." style="min-height:60px"></textarea></div>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="location-id">
-      <div class="form-group">
-        <label>Nome da Localidade *</label>
-        <input type="text" id="location-name" placeholder="Ex: Escritório">
-      </div>
-      <div class="form-group">
-        <label>Descrição</label>
-        <textarea id="location-description" placeholder="Descrição opcional..." style="min-height:60px"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-location')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveLocationForm()">Salvar</button>
+    <div class="mf">
+      <button class="btn btn-secondary" onclick="close('m-loc')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveLoc_()">Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: BOX DETAILS -->
-<div class="modal-overlay" id="modal-box-details">
-  <div class="modal" style="max-width:700px">
-    <div class="modal-header">
-      <span class="modal-title" id="modal-box-details-title">Detalhes da Caixa</span>
-      <button class="modal-close" onclick="closeModal('modal-box-details')">&times;</button>
+<!-- Box detail -->
+<div class="overlay" id="m-box-detail">
+  <div class="modal modal-lg">
+    <div class="mh"><span class="mh-title" id="m-box-detail-title"></span><button class="btn-close" onclick="close('m-box-detail')">×</button></div>
+    <div class="mc" id="m-box-detail-body"></div>
+    <div class="mf"><button class="btn btn-secondary" onclick="close('m-box-detail')">Fechar</button></div>
+  </div>
+</div>
+
+<!-- Move item -->
+<div class="overlay" id="m-move">
+  <div class="modal" style="max-width:380px">
+    <div class="mh"><span class="mh-title">Mover Item</span><button class="btn-close" onclick="close('m-move')">×</button></div>
+    <div class="mc">
+      <p id="m-move-name" style="font-weight:700;margin-bottom:1rem"></p>
+      <input type="hidden" id="m-move-id">
+      <div class="fg"><label>Nova Caixa</label><select id="m-move-box"></select></div>
+      <div class="fg"><label>Nova Localidade</label><select id="m-move-loc"></select></div>
     </div>
-    <div class="modal-body" id="modal-box-details-body"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-box-details')">Fechar</button>
+    <div class="mf">
+      <button class="btn btn-secondary" onclick="close('m-move')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmMove()">Mover</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: MOVE ITEM -->
-<div class="modal-overlay" id="modal-move-item">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-header">
-      <span class="modal-title">Mover Item</span>
-      <button class="modal-close" onclick="closeModal('modal-move-item')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <p id="move-item-name" style="margin-bottom:1rem;font-weight:600"></p>
-      <input type="hidden" id="move-item-id">
-      <div class="form-group">
-        <label>Mover para a Caixa</label>
-        <select id="move-item-box"></select>
-      </div>
-      <div class="form-group">
-        <label>Localidade (atualizar)</label>
-        <select id="move-item-location"></select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-move-item')">Cancelar</button>
-      <button class="btn btn-primary" onclick="confirmMoveItem()">Mover</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast-container" id="toast-container"></div>
+<div class="toasts" id="toasts"></div>
 
 <script>
-// ============================================================
-// DATA LAYER — abstracts storage; swap localStorage for Firebase here
-// ============================================================
+'use strict';
 
-const STORAGE_KEY = 'inventario_data';
+// ════════════════════════════════════════════════════
+// DATA LAYER  (swap localStorage → Firebase here)
+// ════════════════════════════════════════════════════
+
+const KEY = 'inv2_data';
 
 function _load() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { locations: [], boxes: [], items: [], categories: [], lastUpdated: '' };
-  } catch { return { locations: [], boxes: [], items: [], categories: [], lastUpdated: '' }; }
+  try { return JSON.parse(localStorage.getItem(KEY)) || _empty(); }
+  catch { return _empty(); }
 }
+function _empty() { return { locations:[], boxes:[], items:[], lastUpdated:'' }; }
+function _save(d) { d.lastUpdated = new Date().toISOString(); localStorage.setItem(KEY, JSON.stringify(d)); }
 
-function _save(data) {
-  data.lastUpdated = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function now() { return new Date().toISOString(); }
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
-
+// Locations
 function getLocations() { return _load().locations; }
+function saveLocation(l) {
+  const d = _load();
+  const i = d.locations.findIndex(x => x.id === l.id);
+  const ts = now();
+  if (i >= 0) d.locations[i] = {...d.locations[i], ...l, updatedAt: ts};
+  else d.locations.push({...l, id: l.id||uid(), createdAt: ts, updatedAt: ts});
+  _save(d);
+}
+function deleteLocation(id) { const d=_load(); d.locations=d.locations.filter(x=>x.id!==id); _save(d); }
+
+// Boxes
 function getBoxes() { return _load().boxes; }
+function saveBox(b) {
+  const d = _load();
+  const i = d.boxes.findIndex(x => x.id === b.id);
+  const ts = now();
+  if (i >= 0) d.boxes[i] = {...d.boxes[i], ...b, updatedAt: ts};
+  else d.boxes.push({...b, id: b.id||uid(), createdAt: ts, updatedAt: ts});
+  _save(d);
+}
+function deleteBox(id) { const d=_load(); d.boxes=d.boxes.filter(x=>x.id!==id); _save(d); }
+
+// Items
 function getItems() { return _load().items; }
-function getCategories() {
-  const data = _load();
-  const cats = new Set(data.categories || []);
-  data.boxes.forEach(b => { if (b.category) cats.add(b.category); });
-  data.items.forEach(i => { if (i.category) cats.add(i.category); });
-  return [...cats].sort();
-}
-
-function saveLocation(location) {
-  const data = _load();
-  const idx = data.locations.findIndex(l => l.id === location.id);
-  if (idx >= 0) {
-    data.locations[idx] = { ...data.locations[idx], ...location, updatedAt: new Date().toISOString() };
-  } else {
-    data.locations.push({ ...location, id: location.id || generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-  }
-  _save(data);
-}
-
-function deleteLocation(id) {
-  const data = _load();
-  data.locations = data.locations.filter(l => l.id !== id);
-  _save(data);
-}
-
-function saveBox(box) {
-  const data = _load();
-  const idx = data.boxes.findIndex(b => b.id === box.id);
-  if (idx >= 0) {
-    data.boxes[idx] = { ...data.boxes[idx], ...box, updatedAt: new Date().toISOString() };
-  } else {
-    data.boxes.push({ ...box, id: box.id || generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-  }
-  _save(data);
-}
-
-function deleteBox(id) {
-  const data = _load();
-  data.boxes = data.boxes.filter(b => b.id !== id);
-  _save(data);
-}
-
 function saveItem(item) {
-  const data = _load();
-  const idx = data.items.findIndex(i => i.id === item.id);
-  if (idx >= 0) {
-    data.items[idx] = { ...data.items[idx], ...item, updatedAt: new Date().toISOString() };
-  } else {
-    data.items.push({ ...item, id: item.id || generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-  }
-  _save(data);
+  const d = _load();
+  const i = d.items.findIndex(x => x.id === item.id);
+  const ts = now();
+  if (i >= 0) d.items[i] = {...d.items[i], ...item, updatedAt: ts};
+  else d.items.push({...item, id: item.id||uid(), createdAt: ts, updatedAt: ts});
+  _save(d);
 }
+function deleteItem(id) { const d=_load(); d.items=d.items.filter(x=>x.id!==id); _save(d); }
 
-function deleteItem(id) {
-  const data = _load();
-  data.items = data.items.filter(i => i.id !== id);
-  _save(data);
+// Bulk
+function getCategories() {
+  const s = new Set();
+  getBoxes().forEach(b => { if(b.category) s.add(b.category); });
+  getItems().forEach(i => { if(i.category) s.add(i.category); });
+  return [...s].sort();
 }
-
-function getAllData() { return _load(); }
 
 function exportData() {
-  const data = getAllData();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+  const blob = new Blob([JSON.stringify(_load(),null,2)], {type:'application/json'});
   const a = document.createElement('a');
-  a.href = url;
+  a.href = URL.createObjectURL(blob);
   a.download = `inventario_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Dados exportados com sucesso!', 'success');
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Exportado com sucesso!','success');
 }
 
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
+function importJSON(e) {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (!data.locations || !data.boxes || !data.items) throw new Error('Formato inválido');
-      _save(data);
-      refreshAll();
-      showToast('Dados importados com sucesso!', 'success');
-    } catch {
-      showToast('Erro: arquivo JSON inválido.', 'error');
-    }
-    event.target.value = '';
+      const d = JSON.parse(ev.target.result);
+      if (!d.locations||!d.boxes||!d.items) throw 0;
+      _save(d); refreshAll(); toast('Importado com sucesso!','success');
+    } catch { toast('Arquivo JSON inválido.','error'); }
+    e.target.value='';
   };
-  reader.readAsText(file);
+  r.readAsText(f);
 }
 
-function clearAllData() {
-  if (!confirm('Tem certeza? Todos os dados serão removidos permanentemente.')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  refreshAll();
-  showToast('Todos os dados foram removidos.', 'info');
+function clearAll() {
+  if (!confirm('Remover TODOS os dados permanentemente?')) return;
+  localStorage.removeItem(KEY); refreshAll(); toast('Dados removidos.','info');
 }
 
-// ============================================================
+// ════════════════════════════════════════════════════
 // DEFAULT DATA
-// ============================================================
+// ════════════════════════════════════════════════════
 
-function initializeDefaultData() {
-  const existing = _load();
-  if (existing.locations.length > 0) return;
-
+function initData() {
+  if (_load().locations.length) return;
+  const ts = now();
   const locs = [
-    { id: 'loc1', name: 'Dispensa', description: 'Armário de dispensa da cozinha' },
-    { id: 'loc2', name: 'Depósito', description: 'Depósito de itens gerais' },
-    { id: 'loc3', name: 'Escritório', description: 'Sala de escritório/home office' },
-    { id: 'loc4', name: 'Quarto Principal', description: 'Quarto principal do casal' },
-    { id: 'loc5', name: 'Rack da Sala', description: 'Rack de TV na sala de estar' },
+    {id:'loc1',name:'Dispensa',description:'Armário de dispensa'},
+    {id:'loc2',name:'Depósito',description:'Depósito de itens gerais'},
+    {id:'loc3',name:'Escritório',description:'Home office'},
+    {id:'loc4',name:'Quarto Principal',description:'Quarto do casal'},
+    {id:'loc5',name:'Rack da Sala',description:'Rack de TV'},
   ];
-  locs.forEach(l => saveLocation(l));
+  locs.forEach(l => saveLocation({...l, createdAt:ts, updatedAt:ts}));
 
-  const now = new Date().toISOString();
   const boxes = [
-    { id: 'box-a', name: 'Caixa A', locationId: 'loc3', category: 'Cabos USB e celular', tags: 'cabos,usb,celular', observations: '' },
-    { id: 'box-b', name: 'Caixa B', locationId: 'loc3', category: 'Arduino e prototipagem', tags: 'arduino,eletrônica,prototipagem', observations: '' },
-    { id: 'box-c', name: 'Caixa C', locationId: 'loc3', category: 'Placas e eletrônica', tags: 'placas,componentes,eletrônica', observations: '' },
-    { id: 'box-d', name: 'Caixa D', locationId: 'loc3', category: 'Soldagem', tags: 'solda,ferro,ferramentas', observations: '' },
-    { id: 'box-e', name: 'Caixa E', locationId: 'loc2', category: 'Elétrica residencial', tags: 'elétrica,lâmpadas,fios', observations: '' },
-    { id: 'box-f', name: 'Caixa F', locationId: 'loc2', category: 'LED e fontes', tags: 'led,fonte,iluminação', observations: '' },
-    { id: 'box-g', name: 'Caixa G', locationId: 'loc3', category: 'Impressora 3D', tags: '3d,impressora,filamento', observations: '' },
+    {id:'bxA',name:'Caixa A',locationId:'loc3',category:'Cabos USB e celular',tags:'cabos,usb,celular',observations:''},
+    {id:'bxB',name:'Caixa B',locationId:'loc3',category:'Arduino e prototipagem',tags:'arduino,prototipagem',observations:''},
+    {id:'bxC',name:'Caixa C',locationId:'loc3',category:'Placas e eletrônica',tags:'placas,componentes',observations:''},
+    {id:'bxD',name:'Caixa D',locationId:'loc3',category:'Soldagem',tags:'solda,ferramentas',observations:''},
+    {id:'bxE',name:'Caixa E',locationId:'loc2',category:'Elétrica residencial',tags:'elétrica,lâmpadas',observations:''},
+    {id:'bxF',name:'Caixa F',locationId:'loc2',category:'LED e fontes',tags:'led,fonte',observations:''},
+    {id:'bxG',name:'Caixa G',locationId:'loc3',category:'Impressora 3D',tags:'3d,impressora',observations:''},
   ];
-  boxes.forEach(b => saveBox({ ...b, createdAt: now, updatedAt: now }));
+  boxes.forEach(b => saveBox({...b, createdAt:ts, updatedAt:ts}));
 
   const items = [
-    // Caixa A
-    { name: 'Cabos de celular', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 5, tags: 'cabo,celular', synonyms: 'carregador,cabo carregador', state: 'usado', observations: '', internalPosition: '' },
-    { name: 'Cabos USB-C', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 4, tags: 'usb-c,cabo', synonyms: 'usbc,type-c,tipo c', state: 'usado', observations: '', internalPosition: '' },
-    { name: 'Cabos USB Micro', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 6, tags: 'micro-usb,cabo', synonyms: 'micro usb,microusb', state: 'usado', observations: '', internalPosition: '' },
-    { name: 'Cabos USB em geral', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 10, tags: 'usb,cabo', synonyms: 'cabo usb', state: 'desconhecido', observations: 'Variados', internalPosition: 'Fundo da caixa' },
-    // Caixa B
-    { name: 'Peças Arduino', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 8, tags: 'arduino,placa', synonyms: 'arduíno,microcontrolador,uno,nano,mega', state: 'desconhecido', observations: '', internalPosition: '' },
-    { name: 'Fios de Arduino', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 30, tags: 'fio,jumper,arduino', synonyms: 'jumper,cabo jumper,fio macho', state: 'novo', observations: '', internalPosition: 'Saquinho B-01' },
-    { name: 'Conectores pequenos', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 20, tags: 'conector,arduino', synonyms: 'header,pino,borne,terminal', state: 'novo', observations: '', internalPosition: 'Saquinho B-02' },
-    { name: 'Componentes diversos de Arduino', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 15, tags: 'componente,arduino,eletrônica', synonyms: 'resistor,capacitor,led,transistor,sensor', state: 'desconhecido', observations: 'Misturados', internalPosition: '' },
-    // Caixa C
-    { name: 'Placas eletrônicas', category: 'Eletrônica', boxId: 'box-c', locationId: 'loc3', quantity: 5, tags: 'placa,pcb,eletrônica', synonyms: 'pcb,circuito impresso,shield', state: 'desconhecido', observations: '', internalPosition: '' },
-    { name: 'Componentes eletrônicos diversos', category: 'Eletrônica', boxId: 'box-c', locationId: 'loc3', quantity: 50, tags: 'componente,eletrônica', synonyms: 'resistor,capacitor,diodo,transistor,ci', state: 'desconhecido', observations: '', internalPosition: 'Divisórias internas' },
-    // Caixa D
-    { name: 'Ferro de solda', category: 'Soldagem', boxId: 'box-d', locationId: 'loc3', quantity: 1, tags: 'ferro,solda,ferramentas', synonyms: 'soldador,estação de solda', state: 'usado', observations: 'Estação de solda regulável', internalPosition: '' },
-    { name: 'Estanho de solda', category: 'Soldagem', boxId: 'box-d', locationId: 'loc3', quantity: 2, tags: 'estanho,solda', synonyms: 'solda,fio de solda,liga', state: 'usado', observations: '', internalPosition: '' },
-    { name: 'Acessórios de soldagem', category: 'Soldagem', boxId: 'box-d', locationId: 'loc3', quantity: 7, tags: 'acessório,solda', synonyms: 'sugador,flux,suporte,esponja', state: 'usado', observations: '', internalPosition: '' },
-    // Caixa E
-    { name: 'Lâmpadas', category: 'Elétrica', boxId: 'box-e', locationId: 'loc2', quantity: 6, tags: 'lâmpada,elétrica,iluminação', synonyms: 'lampada,bulbo,led,fluorescente', state: 'novo', observations: '', internalPosition: '' },
-    { name: 'Tomadas de parede', category: 'Elétrica', boxId: 'box-e', locationId: 'loc2', quantity: 4, tags: 'tomada,elétrica', synonyms: 'interruptor,plug,plugue,receptáculo', state: 'novo', observations: '', internalPosition: '' },
-    { name: 'Fios de diversos tamanhos', category: 'Elétrica', boxId: 'box-e', locationId: 'loc2', quantity: 10, tags: 'fio,cabo,elétrica', synonyms: 'cabo elétrico,fio elétrico,condutor', state: 'usado', observations: 'Vários bitolas', internalPosition: '' },
-    // Caixa F
-    { name: 'Fonte de LED antiga', category: 'LED', boxId: 'box-f', locationId: 'loc2', quantity: 1, tags: 'fonte,led,alimentação', synonyms: 'driver led,transformador,conversor', state: 'usado', observations: 'Fonte 12V para fita LED', internalPosition: '' },
-    // Caixa G
-    { name: 'Itens de impressora 3D', category: 'Impressora 3D', boxId: 'box-g', locationId: 'loc3', quantity: 12, tags: '3d,impressora,peça', synonyms: 'filamento,bico,nozzle,extrusor,termistor,plataforma', state: 'desconhecido', observations: 'Peças de reposição e melhorias', internalPosition: '' },
+    {name:'Cabos de celular',category:'Cabos',boxId:'bxA',locationId:'loc3',quantity:5,tags:'cabo,celular',synonyms:'carregador',state:'usado',observations:'',internalPosition:''},
+    {name:'Cabos USB-C',category:'Cabos',boxId:'bxA',locationId:'loc3',quantity:4,tags:'usb-c',synonyms:'type-c,usbc',state:'usado',observations:'',internalPosition:''},
+    {name:'Cabos USB Micro',category:'Cabos',boxId:'bxA',locationId:'loc3',quantity:6,tags:'micro-usb',synonyms:'microusb',state:'usado',observations:'',internalPosition:''},
+    {name:'Cabos USB em geral',category:'Cabos',boxId:'bxA',locationId:'loc3',quantity:10,tags:'usb',synonyms:'cabo usb',state:'desconhecido',observations:'Variados',internalPosition:'Fundo'},
+    {name:'Peças Arduino',category:'Arduino',boxId:'bxB',locationId:'loc3',quantity:8,tags:'arduino',synonyms:'uno,nano,mega,microcontrolador',state:'desconhecido',observations:'',internalPosition:''},
+    {name:'Jumpers / Fios',category:'Arduino',boxId:'bxB',locationId:'loc3',quantity:30,tags:'jumper,fio',synonyms:'cabo jumper,fio macho',state:'novo',observations:'',internalPosition:'Saquinho B-01'},
+    {name:'Conectores pequenos',category:'Arduino',boxId:'bxB',locationId:'loc3',quantity:20,tags:'conector',synonyms:'header,pino,borne',state:'novo',observations:'',internalPosition:'Saquinho B-02'},
+    {name:'Componentes eletrônicos (Arduino)',category:'Arduino',boxId:'bxB',locationId:'loc3',quantity:15,tags:'componente',synonyms:'resistor,capacitor,led,transistor,sensor',state:'desconhecido',observations:'Misturados',internalPosition:''},
+    {name:'Placas eletrônicas',category:'Eletrônica',boxId:'bxC',locationId:'loc3',quantity:5,tags:'placa,pcb',synonyms:'pcb,shield,circuito impresso',state:'desconhecido',observations:'',internalPosition:''},
+    {name:'Componentes eletrônicos diversos',category:'Eletrônica',boxId:'bxC',locationId:'loc3',quantity:50,tags:'componente',synonyms:'resistor,capacitor,diodo,transistor',state:'desconhecido',observations:'',internalPosition:'Divisórias'},
+    {name:'Ferro de solda',category:'Soldagem',boxId:'bxD',locationId:'loc3',quantity:1,tags:'ferro,solda',synonyms:'soldador,estação de solda',state:'usado',observations:'Estação regulável',internalPosition:''},
+    {name:'Estanho de solda',category:'Soldagem',boxId:'bxD',locationId:'loc3',quantity:2,tags:'estanho',synonyms:'solda,fio de solda',state:'usado',observations:'',internalPosition:''},
+    {name:'Acessórios de soldagem',category:'Soldagem',boxId:'bxD',locationId:'loc3',quantity:7,tags:'acessório,solda',synonyms:'sugador,flux,suporte',state:'usado',observations:'',internalPosition:''},
+    {name:'Lâmpadas',category:'Elétrica',boxId:'bxE',locationId:'loc2',quantity:6,tags:'lâmpada',synonyms:'lampada,bulbo,led,fluorescente',state:'novo',observations:'',internalPosition:''},
+    {name:'Tomadas de parede',category:'Elétrica',boxId:'bxE',locationId:'loc2',quantity:4,tags:'tomada',synonyms:'interruptor,plug,receptáculo',state:'novo',observations:'',internalPosition:''},
+    {name:'Fios elétricos',category:'Elétrica',boxId:'bxE',locationId:'loc2',quantity:10,tags:'fio,cabo',synonyms:'cabo elétrico,condutor',state:'usado',observations:'Várias bitolas',internalPosition:''},
+    {name:'Fonte de LED',category:'LED',boxId:'bxF',locationId:'loc2',quantity:1,tags:'fonte,led',synonyms:'driver led,transformador',state:'usado',observations:'Fonte 12V fita LED',internalPosition:''},
+    {name:'Itens impressora 3D',category:'Impressora 3D',boxId:'bxG',locationId:'loc3',quantity:12,tags:'3d,peça',synonyms:'filamento,nozzle,extrusor,termistor',state:'desconhecido',observations:'Peças de reposição',internalPosition:''},
   ];
-  items.forEach(i => saveItem({ ...i, id: generateId(), createdAt: now, updatedAt: now }));
+  items.forEach(i => saveItem({...i, id:uid(), createdAt:ts, updatedAt:ts}));
 }
 
-// ============================================================
-// UI HELPERS
-// ============================================================
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
 
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+function tags2html(str, cls='tag-gray'){ return (str||'').split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag ${cls}">${esc(t)}</span>`).join(''); }
+function fmtDate(iso){ return iso ? new Date(iso).toLocaleDateString('pt-BR') : '—'; }
+function stateBadge(s){
+  const m={novo:'s-novo',usado:'s-usado','com defeito':'s-defeito',desconhecido:'s-desconhecido'};
+  return `<span class="badge-state ${m[s]||'s-desconhecido'}">${esc(s||'desconhecido')}</span>`;
+}
+
+function toast(msg, type='info'){
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast t-${type}`; el.textContent = msg;
+  c.appendChild(el); setTimeout(()=>el.remove(), 3200);
+}
+
+function open_(id){ document.getElementById(id).classList.add('open'); }
+function close(id){ document.getElementById(id).classList.remove('open'); }
+
+// ════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════
+
+function go(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(name).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(t => {
-    if (t.getAttribute('onclick') && t.getAttribute('onclick').includes(`'${name}'`)) t.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>{
+    if ((t.getAttribute('onclick')||'').includes(`'${name}'`)) t.classList.add('active');
   });
-  if (name === 'dashboard') renderDashboard();
-  if (name === 'boxes') { populateBoxFilters(); renderBoxes(); }
-  if (name === 'items') { populateItemFilters(); renderItems(); }
-  if (name === 'locations') renderLocations();
-  if (name === 'labels') { populateLabelSelect(); renderLabel(); }
+  updateNavBadge();
+  if(name==='inicio') renderHome();
+  if(name==='organizar') renderOrganize();
+  if(name==='caixas'){ fillBoxFilters(); renderBoxes(); }
+  if(name==='itens'){ fillItemFilters(); renderItems(); }
+  if(name==='localidades') renderLocs();
+  if(name==='etiquetas'){ fillLabelSelect(); renderLabel(); }
 }
 
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function showToast(msg, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
+function updateNavBadge(){
+  const count = getItems().filter(i=>!i.boxId).length;
+  const tab = document.getElementById('tab-organizar');
+  let b = tab.querySelector('.badge-pill');
+  if(count > 0){
+    if(!b){ b=document.createElement('span'); b.className='badge-pill'; tab.appendChild(b); }
+    b.textContent = count;
+  } else { if(b) b.remove(); }
 }
 
-function normalizeText(text) {
-  return (text || '').toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '');
+function refreshAll(){
+  updateNavBadge();
+  const active = document.querySelector('.section.active');
+  if(!active) return;
+  const id = active.id;
+  if(id==='inicio') renderHome();
+  if(id==='organizar') renderOrganize();
+  if(id==='caixas'){ fillBoxFilters(); renderBoxes(); }
+  if(id==='itens'){ fillItemFilters(); renderItems(); }
+  if(id==='localidades') renderLocs();
+  if(id==='etiquetas'){ fillLabelSelect(); renderLabel(); }
 }
 
-function parseTags(str) {
-  return (str || '').split(',').map(t => t.trim()).filter(Boolean);
+// ════════════════════════════════════════════════════
+// HOME / SEARCH
+// ════════════════════════════════════════════════════
+
+function renderHome(){
+  const items = getItems(), boxes = getBoxes(), locs = getLocations();
+  document.getElementById('qs-boxes').textContent = boxes.length;
+  document.getElementById('qs-items').textContent = items.length;
+  document.getElementById('qs-unassigned').textContent = items.filter(i=>!i.boxId).length;
+  document.getElementById('qs-locs').textContent = locs.length;
+  const q = document.getElementById('s-input').value;
+  if(q) doSearch(); else document.getElementById('search-results').innerHTML='';
 }
 
-function renderTags(tags, colorClass = 'tag-primary') {
-  return parseTags(Array.isArray(tags) ? tags.join(',') : tags)
-    .map(t => `<span class="tag ${colorClass}">${escHtml(t)}</span>`).join('');
-}
-
-function escHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function stateBadge(state) {
-  const map = { novo: 'badge-novo', usado: 'badge-usado', 'com defeito': 'badge-defeito', desconhecido: 'badge-desconhecido' };
-  return `<span class="badge ${map[state] || 'badge-desconhecido'}">${escHtml(state || 'desconhecido')}</span>`;
-}
-
-function fmtDate(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('pt-BR');
-}
-
-// ============================================================
-// DASHBOARD
-// ============================================================
-
-function renderDashboard() {
-  const locations = getLocations();
-  const boxes = getBoxes();
-  const items = getItems();
-
-  const cats = {};
-  items.forEach(i => { if (i.category) cats[i.category] = (cats[i.category] || 0) + 1; });
-  const topCats = Object.entries(cats).sort((a,b) => b[1]-a[1]).slice(0,5);
-
-  const boxItemCount = {};
-  boxes.forEach(b => boxItemCount[b.id] = 0);
-  items.forEach(i => { if (i.boxId) boxItemCount[i.boxId] = (boxItemCount[i.boxId] || 0) + 1; });
-  const topBoxes = boxes.map(b => ({ ...b, count: boxItemCount[b.id] || 0 })).sort((a,b) => b.count-a.count).slice(0,5);
-  const noBox = items.filter(i => !i.boxId).length;
-  const noLoc = items.filter(i => !i.locationId).length;
-
-  document.getElementById('dashboard-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-value">${boxes.length}</div><div class="stat-label">Caixas</div></div>
-    <div class="stat-card"><div class="stat-value">${items.length}</div><div class="stat-label">Itens</div></div>
-    <div class="stat-card"><div class="stat-value">${locations.length}</div><div class="stat-label">Localidades</div></div>
-    <div class="stat-card"><div class="stat-value">${getCategories().length}</div><div class="stat-label">Categorias</div></div>
-    <div class="stat-card"><div class="stat-value" style="color:var(--warning)">${noBox}</div><div class="stat-label">Itens sem caixa</div></div>
-    <div class="stat-card"><div class="stat-value" style="color:var(--danger)">${noLoc}</div><div class="stat-label">Itens sem localidade</div></div>
-  `;
-
-  const locMap = {};
-  locations.forEach(l => locMap[l.id] = l.name);
-
-  document.getElementById('dashboard-details').innerHTML = `
-    <div class="card">
-      <div class="card-header"><span class="card-title">🏆 Categorias mais usadas</span></div>
-      ${topCats.length ? topCats.map(([cat, cnt]) => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:0.9rem">${escHtml(cat)}</span>
-          <span class="badge badge-novo">${cnt} item${cnt>1?'s':''}</span>
-        </div>`).join('') : '<p style="color:var(--muted);font-size:0.88rem">Nenhuma categoria cadastrada.</p>'}
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="card-title">📦 Caixas com mais itens</span></div>
-      ${topBoxes.length ? topBoxes.map(b => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border)">
-          <div>
-            <span style="font-weight:600;font-size:0.9rem">${escHtml(b.name)}</span>
-            <span style="font-size:0.78rem;color:var(--muted);margin-left:0.5rem">${escHtml(locMap[b.locationId] || '—')}</span>
-          </div>
-          <span class="badge badge-novo">${b.count} item${b.count>1?'s':''}</span>
-        </div>`).join('') : '<p style="color:var(--muted);font-size:0.88rem">Nenhuma caixa cadastrada.</p>'}
-    </div>
-  `;
-}
-
-// ============================================================
-// LOCATIONS
-// ============================================================
-
-function renderLocations() {
-  const locations = getLocations();
-  const boxes = getBoxes();
-  const locBoxCount = {};
-  boxes.forEach(b => { if (b.locationId) locBoxCount[b.locationId] = (locBoxCount[b.locationId]||0)+1; });
-
-  const list = document.getElementById('locations-list');
-  if (!locations.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📍</div><div class="empty-state-text">Nenhuma localidade cadastrada.</div></div>';
-    return;
-  }
-  list.innerHTML = locations.map(l => `
-    <div class="location-card">
-      <div>
-        <div class="location-name">📍 ${escHtml(l.name)}</div>
-        <div class="location-meta">${escHtml(l.description || '')} · ${locBoxCount[l.id]||0} caixa(s)</div>
-      </div>
-      <div style="display:flex;gap:0.35rem">
-        <button class="btn btn-sm btn-secondary" onclick="openLocationForm('${l.id}')">✏️ Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteLocationUI('${l.id}')">🗑️</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function openLocationForm(id) {
-  const loc = id ? getLocations().find(l => l.id === id) : null;
-  document.getElementById('location-id').value = id || '';
-  document.getElementById('location-name').value = loc ? loc.name : '';
-  document.getElementById('location-description').value = loc ? (loc.description || '') : '';
-  document.getElementById('modal-location-title').textContent = id ? 'Editar Localidade' : 'Nova Localidade';
-  openModal('modal-location');
-}
-
-function saveLocationForm() {
-  const id = document.getElementById('location-id').value;
-  const name = document.getElementById('location-name').value.trim();
-  if (!name) { showToast('Nome é obrigatório.', 'error'); return; }
-  saveLocation({ id: id || generateId(), name, description: document.getElementById('location-description').value.trim() });
-  closeModal('modal-location');
-  renderLocations();
-  showToast(id ? 'Localidade atualizada!' : 'Localidade criada!', 'success');
-  populateBoxFilters(); populateItemFilters();
-}
-
-function deleteLocationUI(id) {
-  const boxes = getBoxes().filter(b => b.locationId === id);
-  if (boxes.length) { showToast(`Não é possível excluir: ${boxes.length} caixa(s) nesta localidade.`, 'error'); return; }
-  if (!confirm('Excluir esta localidade?')) return;
-  deleteLocation(id);
-  renderLocations();
-  showToast('Localidade excluída.', 'info');
-}
-
-// ============================================================
-// BOXES
-// ============================================================
-
-function populateBoxFilters() {
-  const locations = getLocations();
-  const cats = getCategories();
-  const sel = document.getElementById('filter-box-location');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">Todas</option>' + locations.map(l => `<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
-  sel.value = prev;
-
-  const csel = document.getElementById('filter-box-category');
-  const cprev = csel.value;
-  csel.innerHTML = '<option value="">Todas</option>' + cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
-  csel.value = cprev;
-}
-
-function renderBoxes() {
-  const boxes = getBoxes();
-  const items = getItems();
-  const locations = getLocations();
-  const locMap = {};
-  locations.forEach(l => locMap[l.id] = l.name);
-
-  const locFilter = document.getElementById('filter-box-location').value;
-  const catFilter = document.getElementById('filter-box-category').value;
-  const searchVal = normalizeText(document.getElementById('filter-box-search').value);
-
-  const filtered = boxes.filter(b => {
-    if (locFilter && b.locationId !== locFilter) return false;
-    if (catFilter && b.category !== catFilter) return false;
-    if (searchVal) {
-      const haystack = normalizeText([b.name, b.category, b.observations, b.tags].join(' '));
-      if (!haystack.includes(searchVal)) return false;
-    }
-    return true;
-  });
-
-  const boxItemCount = {};
-  items.forEach(i => { if (i.boxId) boxItemCount[i.boxId] = (boxItemCount[i.boxId]||0)+1; });
-
-  const grid = document.getElementById('boxes-grid');
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📦</div><div class="empty-state-text">Nenhuma caixa encontrada.</div></div>';
-    return;
-  }
-
-  grid.innerHTML = filtered.map(b => `
-    <div class="box-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div class="box-name">${escHtml(b.name)}</div>
-        <span class="tag tag-gray">${boxItemCount[b.id]||0} itens</span>
-      </div>
-      <div class="box-location">📍 ${escHtml(locMap[b.locationId] || '—')}</div>
-      ${b.category ? `<div class="box-category">${escHtml(b.category)}</div>` : ''}
-      ${b.observations ? `<div style="font-size:0.82rem;color:var(--muted)">${escHtml(b.observations)}</div>` : ''}
-      <div class="tags">${renderTags(b.tags, 'tag-purple')}</div>
-      <div class="box-actions">
-        <button class="btn btn-sm btn-info" onclick="viewBoxDetails('${b.id}')">👁 Ver</button>
-        <button class="btn btn-sm btn-secondary" onclick="openBoxForm('${b.id}')">✏️ Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteBoxUI('${b.id}')">🗑️</button>
-        <button class="btn btn-sm btn-warning" onclick="openLabelForBox('${b.id}')">🏷️ Etiqueta</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function openBoxForm(id) {
-  const box = id ? getBoxes().find(b => b.id === id) : null;
-  const locations = getLocations();
-  document.getElementById('box-id').value = id || '';
-  document.getElementById('box-name').value = box ? box.name : '';
-  document.getElementById('box-category').value = box ? (box.category || '') : '';
-  document.getElementById('box-tags').value = box ? (box.tags || '') : '';
-  document.getElementById('box-observations').value = box ? (box.observations || '') : '';
-  const locSel = document.getElementById('box-location');
-  locSel.innerHTML = '<option value="">Selecione...</option>' + locations.map(l => `<option value="${l.id}" ${box && box.locationId===l.id?'selected':''}>${escHtml(l.name)}</option>`).join('');
-  document.getElementById('modal-box-title').textContent = id ? 'Editar Caixa' : 'Nova Caixa';
-  openModal('modal-box');
-}
-
-function saveBoxForm() {
-  const id = document.getElementById('box-id').value;
-  const name = document.getElementById('box-name').value.trim();
-  const locationId = document.getElementById('box-location').value;
-  if (!name) { showToast('Nome é obrigatório.', 'error'); return; }
-  if (!locationId) { showToast('Selecione uma localidade.', 'error'); return; }
-  saveBox({
-    id: id || generateId(), name, locationId,
-    category: document.getElementById('box-category').value.trim(),
-    tags: document.getElementById('box-tags').value.trim(),
-    observations: document.getElementById('box-observations').value.trim()
-  });
-  closeModal('modal-box');
-  renderBoxes();
-  showToast(id ? 'Caixa atualizada!' : 'Caixa criada!', 'success');
-}
-
-function deleteBoxUI(id) {
-  const itemsInBox = getItems().filter(i => i.boxId === id);
-  if (itemsInBox.length) { showToast(`Esta caixa tem ${itemsInBox.length} item(s). Mova-os antes de excluir.`, 'error'); return; }
-  if (!confirm('Excluir esta caixa?')) return;
-  deleteBox(id);
-  renderBoxes();
-  showToast('Caixa excluída.', 'info');
-}
-
-function viewBoxDetails(id) {
-  const box = getBoxes().find(b => b.id === id);
-  if (!box) return;
-  const items = getItems().filter(i => i.boxId === id);
-  const locations = getLocations();
-  const locMap = {};
-  locations.forEach(l => locMap[l.id] = l.name);
-
-  document.getElementById('modal-box-details-title').textContent = `📦 ${box.name}`;
-  document.getElementById('modal-box-details-body').innerHTML = `
-    <div class="detail-section">
-      <h4>Informações</h4>
-      <div class="form-row" style="gap:0.5rem;margin-bottom:0">
-        <div><strong>Localidade:</strong> ${escHtml(locMap[box.locationId]||'—')}</div>
-        <div><strong>Categoria:</strong> ${escHtml(box.category||'—')}</div>
-      </div>
-      ${box.observations ? `<div style="margin-top:0.5rem;font-size:0.88rem;color:var(--muted)">${escHtml(box.observations)}</div>` : ''}
-      <div class="tags" style="margin-top:0.5rem">${renderTags(box.tags, 'tag-purple')}</div>
-    </div>
-    <div class="detail-section">
-      <h4>Itens (${items.length})</h4>
-      ${items.length ? `
-        <div class="table-wrapper">
-          <table>
-            <thead><tr><th>Nome</th><th>Categoria</th><th>Qtd</th><th>Estado</th><th>Posição</th><th>Ações</th></tr></thead>
-            <tbody>
-              ${items.map(item => `
-                <tr>
-                  <td>${escHtml(item.name)}</td>
-                  <td>${escHtml(item.category||'—')}</td>
-                  <td>${item.quantity||1}</td>
-                  <td>${stateBadge(item.state)}</td>
-                  <td>${escHtml(item.internalPosition||'—')}</td>
-                  <td class="td-actions">
-                    <button class="btn btn-sm btn-secondary" onclick="closeModal('modal-box-details');openItemForm('${item.id}')">✏️</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteItemFromDetails('${item.id}','${id}')">🗑️</button>
-                  </td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>` : '<p style="color:var(--muted);font-size:0.88rem">Nenhum item nesta caixa.</p>'}
-    </div>
-    <div style="margin-top:1rem">
-      <button class="btn btn-primary btn-sm" onclick="closeModal('modal-box-details');openItemFormForBox('${id}')">+ Adicionar Item</button>
-    </div>
-  `;
-  openModal('modal-box-details');
-}
-
-function deleteItemFromDetails(itemId, boxId) {
-  if (!confirm('Excluir este item?')) return;
-  deleteItem(itemId);
-  viewBoxDetails(boxId);
-  showToast('Item excluído.', 'info');
-}
-
-// ============================================================
-// ITEMS
-// ============================================================
-
-function populateItemFilters() {
-  const boxes = getBoxes();
-  const locations = getLocations();
-  const cats = getCategories();
-
-  const bsel = document.getElementById('filter-item-box');
-  const bprev = bsel.value;
-  bsel.innerHTML = '<option value="">Todas</option>' + boxes.map(b => `<option value="${b.id}">${escHtml(b.name)}</option>`).join('');
-  bsel.value = bprev;
-
-  const lsel = document.getElementById('filter-item-location');
-  const lprev = lsel.value;
-  lsel.innerHTML = '<option value="">Todas</option>' + locations.map(l => `<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
-  lsel.value = lprev;
-
-  const csel = document.getElementById('filter-item-category');
-  const cprev = csel.value;
-  csel.innerHTML = '<option value="">Todas</option>' + cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
-  csel.value = cprev;
-}
-
-function renderItems() {
-  const items = getItems();
-  const boxes = getBoxes();
-  const locations = getLocations();
-  const boxMap = {};
-  boxes.forEach(b => boxMap[b.id] = b.name);
-  const locMap = {};
-  locations.forEach(l => locMap[l.id] = l.name);
-
-  const boxFilter = document.getElementById('filter-item-box').value;
-  const locFilter = document.getElementById('filter-item-location').value;
-  const catFilter = document.getElementById('filter-item-category').value;
-  const stateFilter = document.getElementById('filter-item-state').value;
-  const searchVal = normalizeText(document.getElementById('filter-item-search').value);
-
-  const filtered = items.filter(i => {
-    if (boxFilter && i.boxId !== boxFilter) return false;
-    if (locFilter && i.locationId !== locFilter) return false;
-    if (catFilter && i.category !== catFilter) return false;
-    if (stateFilter && i.state !== stateFilter) return false;
-    if (searchVal) {
-      const haystack = normalizeText([i.name, i.category, i.tags, i.synonyms, i.observations].join(' '));
-      if (!haystack.includes(searchVal)) return false;
-    }
-    return true;
-  });
-
-  const tbody = document.getElementById('items-tbody');
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="no-results">Nenhum item encontrado.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(item => `
-    <tr>
-      <td>
-        <div style="font-weight:600">${escHtml(item.name)}</div>
-        ${item.tags ? `<div class="tags" style="margin-top:0.3rem">${renderTags(item.tags,'tag-gray')}</div>` : ''}
-      </td>
-      <td>${escHtml(item.category||'—')}</td>
-      <td>${escHtml(boxMap[item.boxId]||'—')}</td>
-      <td>${escHtml(locMap[item.locationId]||'—')}</td>
-      <td>${item.quantity||1}</td>
-      <td>${stateBadge(item.state)}</td>
-      <td style="font-size:0.82rem;color:var(--muted)">${escHtml(item.internalPosition||'—')}</td>
-      <td class="td-actions">
-        <button class="btn btn-sm btn-secondary" onclick="openItemForm('${item.id}')">✏️</button>
-        <button class="btn btn-sm btn-info" onclick="openMoveItem('${item.id}')">↕️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItemUI('${item.id}')">🗑️</button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function openItemForm(id) {
-  _fillItemForm(id, null);
-}
-
-function openItemFormForBox(boxId) {
-  _fillItemForm(null, boxId);
-}
-
-function _fillItemForm(id, defaultBoxId) {
-  const item = id ? getItems().find(i => i.id === id) : null;
-  const boxes = getBoxes();
-  const locations = getLocations();
-
-  document.getElementById('item-id').value = id || '';
-  document.getElementById('item-name').value = item ? item.name : '';
-  document.getElementById('item-category').value = item ? (item.category||'') : '';
-  document.getElementById('item-quantity').value = item ? (item.quantity||1) : 1;
-  document.getElementById('item-state').value = item ? (item.state||'desconhecido') : 'desconhecido';
-  document.getElementById('item-position').value = item ? (item.internalPosition||'') : '';
-  document.getElementById('item-tags').value = item ? (item.tags||'') : '';
-  document.getElementById('item-synonyms').value = item ? (item.synonyms||'') : '';
-  document.getElementById('item-observations').value = item ? (item.observations||'') : '';
-
-  const bsel = document.getElementById('item-box');
-  bsel.innerHTML = '<option value="">Sem caixa</option>' + boxes.map(b => `<option value="${b.id}">${escHtml(b.name)}</option>`).join('');
-  bsel.value = item ? (item.boxId||'') : (defaultBoxId||'');
-
-  const lsel = document.getElementById('item-location');
-  lsel.innerHTML = '<option value="">Sem localidade</option>' + locations.map(l => `<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
-  lsel.value = item ? (item.locationId||'') : '';
-
-  if (!item && (defaultBoxId || bsel.value)) updateItemLocation();
-
-  document.getElementById('modal-item-title').textContent = id ? 'Editar Item' : 'Novo Item';
-  openModal('modal-item');
-}
-
-function updateItemLocation() {
-  const boxId = document.getElementById('item-box').value;
-  if (!boxId) return;
-  const box = getBoxes().find(b => b.id === boxId);
-  if (box && box.locationId) {
-    document.getElementById('item-location').value = box.locationId;
-  }
-}
-
-function saveItemForm() {
-  const id = document.getElementById('item-id').value;
-  const name = document.getElementById('item-name').value.trim();
-  if (!name) { showToast('Nome é obrigatório.', 'error'); return; }
-  saveItem({
-    id: id || generateId(),
-    name,
-    category: document.getElementById('item-category').value.trim(),
-    boxId: document.getElementById('item-box').value,
-    locationId: document.getElementById('item-location').value,
-    quantity: parseInt(document.getElementById('item-quantity').value)||1,
-    state: document.getElementById('item-state').value,
-    internalPosition: document.getElementById('item-position').value.trim(),
-    tags: document.getElementById('item-tags').value.trim(),
-    synonyms: document.getElementById('item-synonyms').value.trim(),
-    observations: document.getElementById('item-observations').value.trim()
-  });
-  closeModal('modal-item');
-  renderItems();
-  showToast(id ? 'Item atualizado!' : 'Item criado!', 'success');
-}
-
-function deleteItemUI(id) {
-  if (!confirm('Excluir este item?')) return;
-  deleteItem(id);
-  renderItems();
-  showToast('Item excluído.', 'info');
-}
-
-function openMoveItem(id) {
-  const item = getItems().find(i => i.id === id);
-  if (!item) return;
-  const boxes = getBoxes();
-  const locations = getLocations();
-
-  document.getElementById('move-item-id').value = id;
-  document.getElementById('move-item-name').textContent = item.name;
-
-  const bsel = document.getElementById('move-item-box');
-  bsel.innerHTML = '<option value="">Sem caixa</option>' + boxes.map(b => `<option value="${b.id}" ${b.id===item.boxId?'selected':''}>${escHtml(b.name)}</option>`).join('');
-
-  const lsel = document.getElementById('move-item-location');
-  lsel.innerHTML = '<option value="">Sem localidade</option>' + locations.map(l => `<option value="${l.id}" ${l.id===item.locationId?'selected':''}>${escHtml(l.name)}</option>`).join('');
-
-  openModal('modal-move-item');
-}
-
-function confirmMoveItem() {
-  const id = document.getElementById('move-item-id').value;
-  const item = getItems().find(i => i.id === id);
-  if (!item) return;
-  saveItem({ ...item, boxId: document.getElementById('move-item-box').value, locationId: document.getElementById('move-item-location').value });
-  closeModal('modal-move-item');
-  renderItems();
-  showToast('Item movido!', 'success');
-}
-
-// ============================================================
-// SEARCH
-// ============================================================
-
-function levenshtein(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({ length: m+1 }, (_, i) => Array.from({ length: n+1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0));
-  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
-    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+function levenshtein(a,b){
+  const m=a.length,n=b.length,dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i?j?0:i:j));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
   return dp[m][n];
 }
 
-function fuzzyMatch(needle, haystack) {
-  const n = normalizeText(needle);
-  const h = normalizeText(haystack);
-  if (h.includes(n)) return true;
-  const words = n.split(/\s+/).filter(Boolean);
-  return words.some(w => {
-    if (w.length <= 3) return h.includes(w);
-    const hWords = h.split(/\s+/);
-    return hWords.some(hw => levenshtein(w, hw) <= Math.floor(w.length * 0.3));
+function fuzzy(needle, haystack){
+  const n=norm(needle), h=norm(haystack||'');
+  if(h.includes(n)) return true;
+  return n.split(/\s+/).filter(Boolean).some(w=>{
+    if(w.length<=3) return h.includes(w);
+    return h.split(/\s+/).some(hw=>levenshtein(w,hw)<=Math.max(1,Math.floor(w.length*.3)));
   });
 }
 
-function performSearch() {
-  const query = document.getElementById('search-input').value.trim();
-  const useRegex = document.getElementById('search-regex').checked;
-  const useFuzzy = document.getElementById('search-fuzzy').checked;
-  const container = document.getElementById('search-results');
+function matchItem(item, q, boxMap, locMap){
+  const fields = [item.name,item.category,item.tags,item.synonyms,item.observations,
+    boxMap[item.boxId], locMap[item.locationId]].join(' ');
+  return fuzzy(q, fields);
+}
 
-  if (!query) { container.innerHTML = ''; return; }
+function doSearch(){
+  const q = document.getElementById('s-input').value.trim();
+  const out = document.getElementById('search-results');
+  if(!q){ out.innerHTML=''; return; }
 
-  const items = getItems();
-  const boxes = getBoxes();
-  const locations = getLocations();
-  const locMap = {}; locations.forEach(l => locMap[l.id] = l.name);
-  const boxMap = {}; boxes.forEach(b => boxMap[b.id] = b.name);
+  const items=getItems(), boxes=getBoxes(), locs=getLocations();
+  const boxMap={}, locMap={};
+  boxes.forEach(b=>boxMap[b.id]=b.name);
+  locs.forEach(l=>locMap[l.id]=l.name);
 
-  let matchFn;
-  if (useRegex) {
-    try {
-      const re = new RegExp(query, 'i');
-      matchFn = (text) => re.test(text || '');
-    } catch { container.innerHTML = '<p style="color:var(--danger);padding:1rem">Regex inválido.</p>'; return; }
-  } else if (useFuzzy) {
-    matchFn = (text) => fuzzyMatch(query, text || '');
-  } else {
-    const q = normalizeText(query);
-    matchFn = (text) => normalizeText(text || '').includes(q);
+  const ri = items.filter(i=>matchItem(i,q,boxMap,locMap));
+  const rb = boxes.filter(b=>fuzzy(q,[b.name,b.category,b.tags,b.observations,locMap[b.locationId]].join(' ')));
+  const rl = locs.filter(l=>fuzzy(q,[l.name,l.description].join(' ')));
+  const total = ri.length+rb.length+rl.length;
+
+  if(!total){ out.innerHTML=`<div class="no-results">Nenhum resultado para "<strong>${esc(q)}</strong>"</div>`; return; }
+
+  let html='';
+
+  if(ri.length){
+    html+=`<div class="sr-group"><div class="sr-group-title">📦 Itens (${ri.length})</div>`;
+    html+=ri.map(item=>`
+      <div class="sr-item" onclick="openItemForm('${item.id}',null)">
+        <div>
+          <div class="sr-name">${esc(item.name)}</div>
+          <div class="sr-meta">${esc(boxMap[item.boxId]||'Sem caixa')} · ${esc(locMap[item.locationId]||'Sem localidade')} · ${esc(item.category||'—')}</div>
+          ${item.tags?`<div class="tags">${tags2html(item.tags)}</div>`:''}
+        </div>
+        ${stateBadge(item.state)}
+      </div>`).join('');
+    html+='</div>';
   }
 
-  function matchItem(item) {
-    return matchFn(item.name) || matchFn(item.category) || matchFn(item.tags) ||
-      matchFn(item.synonyms) || matchFn(item.observations) ||
-      matchFn(boxMap[item.boxId]) || matchFn(locMap[item.locationId]);
-  }
-  function matchBox(box) {
-    return matchFn(box.name) || matchFn(box.category) || matchFn(box.tags) || matchFn(box.observations) || matchFn(locMap[box.locationId]);
-  }
-  function matchLocation(loc) {
-    return matchFn(loc.name) || matchFn(loc.description);
+  if(rb.length){
+    html+=`<div class="sr-group"><div class="sr-group-title">🗂 Caixas (${rb.length})</div>`;
+    html+=rb.map(box=>`
+      <div class="sr-item" onclick="viewBox('${box.id}')">
+        <div>
+          <div class="sr-name">${esc(box.name)}</div>
+          <div class="sr-meta">${esc(locMap[box.locationId]||'—')} · ${esc(box.category||'—')}</div>
+        </div>
+        <span class="tag tag-primary">${items.filter(i=>i.boxId===box.id).length} itens</span>
+      </div>`).join('');
+    html+='</div>';
   }
 
-  const foundItems = items.filter(matchItem);
-  const foundBoxes = boxes.filter(matchBox);
-  const foundLocations = locations.filter(matchLocation);
-  const total = foundItems.length + foundBoxes.length + foundLocations.length;
+  if(rl.length){
+    html+=`<div class="sr-group"><div class="sr-group-title">📍 Localidades (${rl.length})</div>`;
+    html+=rl.map(l=>`
+      <div class="sr-item">
+        <div><div class="sr-name">${esc(l.name)}</div><div class="sr-meta">${esc(l.description||'')}</div></div>
+        <span class="tag tag-gray">${boxes.filter(b=>b.locationId===l.id).length} caixas</span>
+      </div>`).join('');
+    html+='</div>';
+  }
 
-  if (!total) {
-    container.innerHTML = '<div class="no-results">Nenhum resultado encontrado para "' + escHtml(query) + '".</div>';
+  out.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════
+// ORGANIZAR
+// ════════════════════════════════════════════════════
+
+function renderOrganize(){
+  const items=getItems(), all=items.length;
+  const unassigned=items.filter(i=>!i.boxId);
+  const assigned=all-unassigned.length;
+  const pct=all?Math.round(assigned/all*100):0;
+
+  // progress bar
+  document.getElementById('org-progress').innerHTML=`
+    <div>
+      <div style="font-weight:700;font-size:.92rem">${assigned} de ${all} itens organizados</div>
+      <div style="font-size:.8rem;color:var(--muted);margin-top:.15rem">${unassigned.length} aguardando caixa</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" style="width:${pct}%"></div>
+    </div>
+    <div style="font-weight:800;font-size:1.1rem;color:var(--primary)">${pct}%</div>
+  `;
+
+  // fill quick-add category select
+  const qaCat = document.getElementById('qa-cat');
+  const prevCat = qaCat.value;
+  const cats = getCategories();
+  qaCat.innerHTML='<option value="">Categoria (opcional)</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  qaCat.value=prevCat;
+
+  // fill cat-list datalist for item form
+  document.getElementById('cat-list').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
+
+  const container = document.getElementById('org-categories');
+
+  if(!unassigned.length){
+    container.innerHTML=`
+      <div class="done-banner">
+        <div style="font-size:2rem">🎉</div>
+        <h3>Tudo organizado!</h3>
+        <p>Todos os ${all} itens estão distribuídos em caixas.</p>
+      </div>`;
     return;
   }
 
-  let html = `<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem">${total} resultado(s) encontrado(s)</p>`;
+  // group by category
+  const groups={};
+  unassigned.forEach(i=>{
+    const cat=i.category||'__none__';
+    if(!groups[cat]) groups[cat]=[];
+    groups[cat].push(i);
+  });
 
-  if (foundItems.length) {
-    html += `<div class="search-section"><div class="search-section-title">📦 Itens (${foundItems.length})</div>`;
-    html += foundItems.map(item => `
-      <div class="search-result-item">
-        <div>
-          <div class="search-result-name">${escHtml(item.name)}</div>
-          <div class="search-result-meta">${escHtml(boxMap[item.boxId]||'Sem caixa')} · ${escHtml(locMap[item.locationId]||'Sem localidade')} · ${escHtml(item.category||'—')}</div>
-          ${item.tags ? `<div class="tags" style="margin-top:0.3rem">${renderTags(item.tags,'tag-gray')}</div>` : ''}
-        </div>
-        <div style="display:flex;gap:0.35rem">
-          <button class="btn btn-sm btn-secondary" onclick="openItemForm('${item.id}')">✏️</button>
-        </div>
-      </div>`).join('');
-    html += '</div>';
-  }
+  const boxes=getBoxes();
+  const boxOptions='<option value="">Selecione a caixa...</option>'+boxes.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
 
-  if (foundBoxes.length) {
-    html += `<div class="search-section"><div class="search-section-title">🗂 Caixas (${foundBoxes.length})</div>`;
-    html += foundBoxes.map(box => `
-      <div class="search-result-item">
-        <div>
-          <div class="search-result-name">${escHtml(box.name)}</div>
-          <div class="search-result-meta">${escHtml(locMap[box.locationId]||'—')} · ${escHtml(box.category||'—')}</div>
-        </div>
-        <div style="display:flex;gap:0.35rem">
-          <button class="btn btn-sm btn-info" onclick="showSection('boxes');viewBoxDetails('${box.id}')">👁 Ver</button>
-        </div>
-      </div>`).join('');
-    html += '</div>';
-  }
+  const catIcons={'Cabos':'🔌','Arduino':'⚡','Eletrônica':'🔬','Soldagem':'🔧','Elétrica':'💡','LED':'🌟','Impressora 3D':'🖨️','Ferramentas':'🔨','__none__':'❓'};
+  function icon(c){ return catIcons[c]||'📦'; }
 
-  if (foundLocations.length) {
-    html += `<div class="search-section"><div class="search-section-title">📍 Localidades (${foundLocations.length})</div>`;
-    html += foundLocations.map(loc => `
-      <div class="search-result-item">
-        <div>
-          <div class="search-result-name">${escHtml(loc.name)}</div>
-          <div class="search-result-meta">${escHtml(loc.description||'')}</div>
+  container.innerHTML=Object.entries(groups).map(([cat,grpItems])=>{
+    const display=cat==='__none__'?'Sem categoria':cat;
+    const gid='grp-'+cat.replace(/[^a-z0-9]/gi,'-');
+    return `
+      <div class="cat-group" id="${gid}">
+        <div class="cat-header" onclick="toggleCat('${gid}')">
+          <span class="cat-icon">${icon(cat)}</span>
+          <span class="cat-title">${esc(display)}</span>
+          <span class="cat-count">${grpItems.length} item${grpItems.length>1?'s':''} sem caixa</span>
+          <div class="cat-assign" onclick="event.stopPropagation()">
+            <select id="sel-${gid}">${boxOptions}</select>
+            <button class="btn btn-sm btn-success" onclick="assignCatToBox('${esc(cat)}','sel-${gid}')">Atribuir →</button>
+          </div>
+          <span class="cat-chevron" id="chev-${gid}">▼</span>
         </div>
-      </div>`).join('');
-    html += '</div>';
-  }
-
-  container.innerHTML = html;
+        <div class="cat-items" id="items-${gid}">
+          ${grpItems.map(item=>`
+            <div class="cat-item-row">
+              <span class="cat-item-name">${esc(item.name)}</span>
+              <span class="cat-item-qty">${item.quantity>1?`${item.quantity}×`:''}</span>
+              <div style="display:flex;gap:.3rem">
+                <button class="btn btn-xs btn-secondary" onclick="openItemForm('${item.id}',null)">✏️</button>
+                <button class="btn btn-xs btn-danger" onclick="delItem('${item.id}')">🗑️</button>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
 }
 
-// ============================================================
+function toggleCat(gid){
+  const items=document.getElementById('items-'+gid);
+  const chev=document.getElementById('chev-'+gid);
+  items.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function assignCatToBox(cat, selId){
+  const boxId=document.getElementById(selId).value;
+  if(!boxId){ toast('Selecione uma caixa primeiro.','error'); return; }
+  const box=getBoxes().find(b=>b.id===boxId);
+  const target=cat==='__none__'?'':cat;
+  const toMove=getItems().filter(i=>!i.boxId&&(i.category||'')===(target));
+  if(!toMove.length){ toast('Nenhum item encontrado.','info'); return; }
+  toMove.forEach(i=>saveItem({...i, boxId, locationId:box.locationId||i.locationId}));
+  renderOrganize(); updateNavBadge(); renderHome();
+  toast(`${toMove.length} item(s) movido(s) para ${box.name}!`,'success');
+}
+
+// quick add
+function qaAdd(){
+  const name=document.getElementById('qa-name').value.trim();
+  if(!name){ toast('Digite o nome do item.','error'); return; }
+  const cat=document.getElementById('qa-cat').value;
+  saveItem({id:uid(),name,category:cat,boxId:'',locationId:'',quantity:1,state:'desconhecido',tags:'',synonyms:'',observations:'',internalPosition:''});
+  document.getElementById('qa-name').value='';
+  renderOrganize(); updateNavBadge(); renderHome();
+  toast(`"${name}" adicionado.`,'success');
+  document.getElementById('qa-name').focus();
+}
+
+// ════════════════════════════════════════════════════
+// TEXT IMPORT
+// ════════════════════════════════════════════════════
+
+let _importParsed = [];
+
+const CAT_RULES = [
+  ['Cabos',       ['cabo','usb','hdmi','adaptador','carregador','type-c','micro usb']],
+  ['Arduino',     ['arduino','servo','sensor','jumper','protoboard','esp','nodemcu','atmega']],
+  ['Eletrônica',  ['resistor','capacitor','transistor','diodo','ci ','placa','pcb','shield','componente']],
+  ['Soldagem',    ['solda','ferro','estanho','flux','sugador','pasta']],
+  ['Elétrica',    ['lampada','lâmpada','tomada','interruptor','disjuntor','fio elétrico','cabo elétrico']],
+  ['LED',         ['led','fita led','fonte led','driver led','neon']],
+  ['Impressora 3D',['3d','filamento','nozzle','extrusor','termistor','impressora']],
+  ['Ferramentas', ['chave','alicate','martelo','parafuso','fita','cola','estilete']],
+];
+
+function guessCategory(name){
+  const n=norm(name);
+  for(const [cat,kws] of CAT_RULES) if(kws.some(k=>n.includes(k))) return cat;
+  return '';
+}
+
+function toggleImport(){
+  const a=document.getElementById('import-area');
+  const arrow=document.getElementById('import-arrow');
+  a.classList.toggle('open');
+  arrow.textContent=a.classList.contains('open')?'▼':'▶';
+}
+
+function clearImport(){
+  document.getElementById('import-text').value='';
+  document.getElementById('import-preview-area').innerHTML='';
+  document.getElementById('btn-import-confirm').style.display='none';
+  _importParsed=[];
+}
+
+function previewImport(){
+  const raw=document.getElementById('import-text').value;
+  if(!raw.trim()){ toast('Cole um texto para importar.','error'); return; }
+  _importParsed=parseImportText(raw);
+  if(!_importParsed.length){ toast('Nenhum item detectado.','error'); return; }
+
+  const boxes=getBoxes();
+  const boxOptions='<option value="">Sem caixa</option>'+boxes.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  const cats=getCategories();
+  const catOptions='<option value="">Sem categoria</option>'+[...new Set([...cats,..._importParsed.map(i=>i.category).filter(Boolean)])].sort().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+
+  const rows=_importParsed.map((item,idx)=>`
+    <tr>
+      <td><input type="text" id="ip-name-${idx}" value="${esc(item.name)}" style="width:100%;min-width:140px"></td>
+      <td>
+        <select id="ip-cat-${idx}" style="min-width:110px">
+          ${catOptions.replace(`value="${esc(item.category)}"`,`value="${esc(item.category)}" selected`)}
+        </select>
+      </td>
+      <td>
+        <select id="ip-box-${idx}" style="min-width:110px">
+          ${boxOptions.replace(`value="${esc(item.boxId||'')}"`,`value="${esc(item.boxId||'')}" selected`)}
+        </select>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('import-preview-area').innerHTML=`
+    <div class="import-preview" style="max-height:280px;overflow-y:auto">
+      <table>
+        <thead><tr><th>Nome</th><th>Categoria</th><th>Caixa</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <p style="font-size:.78rem;color:var(--muted);margin-top:.4rem">${_importParsed.length} item(s) detectado(s). Ajuste antes de importar.</p>
+  `;
+  document.getElementById('btn-import-confirm').style.display='inline-flex';
+  toast(`${_importParsed.length} item(s) detectado(s).`,'info');
+}
+
+function parseImportText(raw){
+  const lines=raw.split('\n');
+  const result=[];
+  let currentBox=null;
+
+  const boxPatterns=[
+    /^(caixa\s+[a-z0-9]+)\s*[-–:]\s*(.+)$/i,
+    /^(caixa\s+[a-z0-9]+)\s*:?$/i,
+    /^\[(.+)\]$/,
+  ];
+
+  for(let line of lines){
+    const trimmed=line.trim();
+    if(!trimmed) continue;
+
+    // Check if it's a box header
+    let isBox=false;
+    for(const pat of boxPatterns){
+      const m=trimmed.match(pat);
+      if(m){
+        const boxName=m[1]||m[0];
+        const found=getBoxes().find(b=>norm(b.name)===norm(boxName.trim()));
+        currentBox=found?found.id:null;
+        isBox=true; break;
+      }
+    }
+    if(isBox) continue;
+
+    // Skip section headers (ALL CAPS, brackets, dashes-only)
+    if(/^[-=*\s]+$/.test(trimmed)) continue;
+    if(/^\[.*\]$/.test(trimmed) && trimmed.length > 2) continue;
+
+    // It's an item line — strip leading bullets
+    let name=trimmed.replace(/^[-*•·]\s*/,'').trim();
+
+    // Split comma-separated items
+    const subItems=name.includes(',')&&name.length>40?[name]:name.split(',').map(s=>s.trim()).filter(Boolean);
+
+    for(const sub of subItems){
+      if(!sub||sub.length<2) continue;
+      const box=getBoxes().find(b=>b.id===currentBox);
+      result.push({
+        name:sub,
+        category:guessCategory(sub)||(box?box.category:''),
+        boxId:currentBox||'',
+        locationId:box?box.locationId:'',
+      });
+    }
+  }
+  return result;
+}
+
+function confirmImport(){
+  if(!_importParsed.length) return;
+  const ts=now();
+  let count=0;
+  _importParsed.forEach((item,idx)=>{
+    const name=document.getElementById(`ip-name-${idx}`).value.trim();
+    if(!name) return;
+    const cat=document.getElementById(`ip-cat-${idx}`).value;
+    const boxId=document.getElementById(`ip-box-${idx}`).value;
+    const box=getBoxes().find(b=>b.id===boxId);
+    saveItem({
+      id:uid(),name,category:cat,boxId,
+      locationId:box?box.locationId:'',
+      quantity:1,state:'desconhecido',
+      tags:'',synonyms:'',observations:'',internalPosition:'',
+      createdAt:ts,updatedAt:ts
+    });
+    count++;
+  });
+  clearImport();
+  document.getElementById('import-area').classList.remove('open');
+  document.getElementById('import-arrow').textContent='▶';
+  renderOrganize(); updateNavBadge(); renderHome();
+  toast(`${count} item(s) importado(s)!`,'success');
+}
+
+// ════════════════════════════════════════════════════
+// BOXES
+// ════════════════════════════════════════════════════
+
+function fillBoxFilters(){
+  const locs=getLocations(), cats=getCategories();
+  const ls=document.getElementById('fb-loc'), lp=ls.value;
+  ls.innerHTML='<option value="">Todas</option>'+locs.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('');
+  ls.value=lp;
+  const cs=document.getElementById('fb-cat'), cp=cs.value;
+  cs.innerHTML='<option value="">Todas</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  cs.value=cp;
+}
+
+function renderBoxes(){
+  const boxes=getBoxes(), items=getItems(), locs=getLocations();
+  const locMap={}; locs.forEach(l=>locMap[l.id]=l.name);
+  const cnt={}; items.forEach(i=>{ if(i.boxId) cnt[i.boxId]=(cnt[i.boxId]||0)+1; });
+
+  const locF=document.getElementById('fb-loc').value;
+  const catF=document.getElementById('fb-cat').value;
+  const q=norm(document.getElementById('fb-q').value);
+
+  const filtered=boxes.filter(b=>{
+    if(locF&&b.locationId!==locF) return false;
+    if(catF&&b.category!==catF) return false;
+    if(q&&!norm([b.name,b.category,b.observations,b.tags].join(' ')).includes(q)) return false;
+    return true;
+  });
+
+  const grid=document.getElementById('boxes-grid');
+  if(!filtered.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📦</div>Nenhuma caixa encontrada.</div>';
+    return;
+  }
+  grid.innerHTML=filtered.map(b=>`
+    <div class="box-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="box-card-name">${esc(b.name)}</div>
+        <span class="tag tag-primary">${cnt[b.id]||0} itens</span>
+      </div>
+      <div class="box-card-loc">📍 ${esc(locMap[b.locationId]||'—')}</div>
+      ${b.category?`<div class="box-card-cat">${esc(b.category)}</div>`:''}
+      ${b.tags?`<div class="tags">${tags2html(b.tags,'tag-purple')}</div>`:''}
+      <div class="box-card-footer">
+        <div class="box-actions">
+          <button class="btn btn-sm btn-info" onclick="viewBox('${b.id}')">👁 Ver</button>
+          <button class="btn btn-sm btn-secondary" onclick="openBoxForm('${b.id}')">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="delBox('${b.id}')">🗑️</button>
+          <button class="btn btn-sm btn-warning" onclick="goLabel('${b.id}')">🏷️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openBoxForm(id){
+  const b=id?getBoxes().find(x=>x.id===id):null;
+  const locs=getLocations();
+  document.getElementById('f-box-id').value=id||'';
+  document.getElementById('f-box-name').value=b?b.name:'';
+  document.getElementById('f-box-cat').value=b?(b.category||''):'';
+  document.getElementById('f-box-tags').value=b?(b.tags||''):'';
+  document.getElementById('f-box-obs').value=b?(b.observations||''):'';
+  const ls=document.getElementById('f-box-loc');
+  ls.innerHTML='<option value="">Selecione...</option>'+locs.map(l=>`<option value="${l.id}"${b&&b.locationId===l.id?' selected':''}>${esc(l.name)}</option>`).join('');
+  document.getElementById('m-box-title').textContent=id?'Editar Caixa':'Nova Caixa';
+  open_('m-box');
+}
+
+function saveBox_(){
+  const id=document.getElementById('f-box-id').value;
+  const name=document.getElementById('f-box-name').value.trim();
+  const locId=document.getElementById('f-box-loc').value;
+  if(!name){ toast('Nome obrigatório.','error'); return; }
+  if(!locId){ toast('Selecione uma localidade.','error'); return; }
+  saveBox({id:id||uid(),name,locationId:locId,
+    category:document.getElementById('f-box-cat').value.trim(),
+    tags:document.getElementById('f-box-tags').value.trim(),
+    observations:document.getElementById('f-box-obs').value.trim()});
+  close('m-box'); renderBoxes();
+  toast(id?'Caixa atualizada!':'Caixa criada!','success');
+}
+
+function delBox(id){
+  if(getItems().filter(i=>i.boxId===id).length){ toast('Mova os itens antes de excluir a caixa.','error'); return; }
+  if(!confirm('Excluir esta caixa?')) return;
+  deleteBox(id); renderBoxes(); toast('Caixa excluída.','info');
+}
+
+function viewBox(id){
+  const b=getBoxes().find(x=>x.id===id); if(!b) return;
+  const items=getItems().filter(i=>i.boxId===id);
+  const locs=getLocations(); const locMap={}; locs.forEach(l=>locMap[l.id]=l.name);
+  document.getElementById('m-box-detail-title').textContent=`📦 ${b.name}`;
+  document.getElementById('m-box-detail-body').innerHTML=`
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div><strong>Localidade:</strong> ${esc(locMap[b.locationId]||'—')}</div>
+      <div><strong>Categoria:</strong> ${esc(b.category||'—')}</div>
+    </div>
+    ${b.observations?`<div style="color:var(--muted);font-size:.86rem;margin-bottom:.75rem">${esc(b.observations)}</div>`:''}
+    ${b.tags?`<div class="tags" style="margin-bottom:1rem">${tags2html(b.tags,'tag-purple')}</div>`:''}
+    <div style="font-weight:700;margin-bottom:.5rem">Itens (${items.length})</div>
+    ${items.length?`
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Nome</th><th>Categoria</th><th>Qtd</th><th>Estado</th><th>Posição</th><th>Ações</th></tr></thead>
+        <tbody>${items.map(i=>`
+          <tr>
+            <td style="font-weight:600">${esc(i.name)}</td>
+            <td>${esc(i.category||'—')}</td>
+            <td>${i.quantity||1}</td>
+            <td>${stateBadge(i.state)}</td>
+            <td style="font-size:.8rem;color:var(--muted)">${esc(i.internalPosition||'—')}</td>
+            <td class="td-act">
+              <button class="btn btn-xs btn-secondary" onclick="close('m-box-detail');openItemForm('${i.id}',null)">✏️</button>
+              <button class="btn btn-xs btn-danger" onclick="delItemInBox('${i.id}','${id}')">🗑️</button>
+            </td>
+          </tr>`).join('')}
+        </tbody></table>
+      </div>` : '<p style="color:var(--muted);font-size:.86rem">Nenhum item nesta caixa.</p>'}
+    <div style="margin-top:1rem">
+      <button class="btn btn-primary btn-sm" onclick="close('m-box-detail');openItemForm(null,'${id}')">+ Adicionar item</button>
+    </div>`;
+  open_('m-box-detail');
+}
+
+function delItemInBox(itemId, boxId){
+  if(!confirm('Excluir este item?')) return;
+  deleteItem(itemId); viewBox(boxId); updateNavBadge(); toast('Item excluído.','info');
+}
+
+// ════════════════════════════════════════════════════
+// ITEMS
+// ════════════════════════════════════════════════════
+
+function fillItemFilters(){
+  const boxes=getBoxes(), locs=getLocations(), cats=getCategories();
+  const fill=(selId, opts, prev)=>{
+    const s=document.getElementById(selId); const p=prev||s.value;
+    s.innerHTML=opts; s.value=p;
+  };
+  fill('fi-box','<option value="">Todas</option>'+boxes.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join(''));
+  fill('fi-loc','<option value="">Todas</option>'+locs.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join(''));
+  fill('fi-cat','<option value="">Todas</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''));
+}
+
+function renderItems(){
+  const items=getItems(), boxes=getBoxes(), locs=getLocations();
+  const boxMap={}, locMap={};
+  boxes.forEach(b=>boxMap[b.id]=b.name);
+  locs.forEach(l=>locMap[l.id]=l.name);
+
+  const boxF=document.getElementById('fi-box').value;
+  const locF=document.getElementById('fi-loc').value;
+  const catF=document.getElementById('fi-cat').value;
+  const stateF=document.getElementById('fi-state').value;
+  const q=norm(document.getElementById('fi-q').value);
+
+  const filtered=items.filter(i=>{
+    if(boxF&&i.boxId!==boxF) return false;
+    if(locF&&i.locationId!==locF) return false;
+    if(catF&&i.category!==catF) return false;
+    if(stateF&&i.state!==stateF) return false;
+    if(q&&!norm([i.name,i.category,i.tags,i.synonyms,i.observations].join(' ')).includes(q)) return false;
+    return true;
+  });
+
+  const tbody=document.getElementById('items-tbody');
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Nenhum item encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=filtered.map(i=>`
+    <tr>
+      <td>
+        <div style="font-weight:600">${esc(i.name)}</div>
+        ${i.tags?`<div class="tags">${tags2html(i.tags)}</div>`:''}
+      </td>
+      <td>${esc(i.category||'—')}</td>
+      <td>${i.boxId?esc(boxMap[i.boxId]):'<span style="color:var(--warning);font-weight:600">Sem caixa</span>'}</td>
+      <td>${esc(locMap[i.locationId]||'—')}</td>
+      <td>${i.quantity||1}</td>
+      <td>${stateBadge(i.state)}</td>
+      <td class="td-act">
+        <button class="btn btn-xs btn-secondary" onclick="openItemForm('${i.id}',null)">✏️</button>
+        <button class="btn btn-xs btn-info" onclick="openMove('${i.id}')">↕️</button>
+        <button class="btn btn-xs btn-danger" onclick="delItem('${i.id}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openItemForm(id, defaultBoxId){
+  const item=id?getItems().find(x=>x.id===id):null;
+  const boxes=getBoxes(), locs=getLocations();
+  document.getElementById('f-item-id').value=id||'';
+  document.getElementById('f-item-name').value=item?item.name:'';
+  document.getElementById('f-item-cat').value=item?(item.category||''):'';
+  document.getElementById('f-item-qty').value=item?(item.quantity||1):1;
+  document.getElementById('f-item-state').value=item?(item.state||'desconhecido'):'desconhecido';
+  document.getElementById('f-item-tags').value=item?(item.tags||''):'';
+  document.getElementById('f-item-pos').value=item?(item.internalPosition||''):'';
+  document.getElementById('f-item-syn').value=item?(item.synonyms||''):'';
+  document.getElementById('f-item-obs').value=item?(item.observations||''):'';
+
+  const bsel=document.getElementById('f-item-box');
+  bsel.innerHTML='<option value="">Sem caixa</option>'+boxes.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  bsel.value=item?(item.boxId||''):(defaultBoxId||'');
+
+  const lsel=document.getElementById('f-item-loc');
+  lsel.innerHTML='<option value="">Sem localidade</option>'+locs.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('');
+  lsel.value=item?(item.locationId||''):'';
+
+  // auto-fill location from box
+  if(!item&&bsel.value) syncItemLoc();
+
+  // fill datalist
+  document.getElementById('cat-list').innerHTML=getCategories().map(c=>`<option value="${esc(c)}">`).join('');
+
+  document.getElementById('m-item-title').textContent=id?'Editar Item':'Novo Item';
+  open_('m-item');
+}
+
+function syncItemLoc(){
+  const boxId=document.getElementById('f-item-box').value;
+  if(!boxId) return;
+  const box=getBoxes().find(b=>b.id===boxId);
+  if(box&&box.locationId) document.getElementById('f-item-loc').value=box.locationId;
+}
+
+function saveItem_(){
+  const id=document.getElementById('f-item-id').value;
+  const name=document.getElementById('f-item-name').value.trim();
+  if(!name){ toast('Nome obrigatório.','error'); return; }
+  saveItem({
+    id:id||uid(), name,
+    category:document.getElementById('f-item-cat').value.trim(),
+    boxId:document.getElementById('f-item-box').value,
+    locationId:document.getElementById('f-item-loc').value,
+    quantity:parseInt(document.getElementById('f-item-qty').value)||1,
+    state:document.getElementById('f-item-state').value,
+    internalPosition:document.getElementById('f-item-pos').value.trim(),
+    tags:document.getElementById('f-item-tags').value.trim(),
+    synonyms:document.getElementById('f-item-syn').value.trim(),
+    observations:document.getElementById('f-item-obs').value.trim(),
+  });
+  close('m-item');
+  refreshAll();
+  toast(id?'Item atualizado!':'Item criado!','success');
+}
+
+function delItem(id){
+  if(!confirm('Excluir este item?')) return;
+  deleteItem(id); refreshAll(); toast('Item excluído.','info');
+}
+
+function openMove(id){
+  const item=getItems().find(x=>x.id===id); if(!item) return;
+  const boxes=getBoxes(), locs=getLocations();
+  document.getElementById('m-move-id').value=id;
+  document.getElementById('m-move-name').textContent=item.name;
+  const bs=document.getElementById('m-move-box');
+  bs.innerHTML='<option value="">Sem caixa</option>'+boxes.map(b=>`<option value="${b.id}"${b.id===item.boxId?' selected':''}>${esc(b.name)}</option>`).join('');
+  const ls=document.getElementById('m-move-loc');
+  ls.innerHTML='<option value="">Sem localidade</option>'+locs.map(l=>`<option value="${l.id}"${l.id===item.locationId?' selected':''}>${esc(l.name)}</option>`).join('');
+  open_('m-move');
+}
+
+function confirmMove(){
+  const id=document.getElementById('m-move-id').value;
+  const item=getItems().find(x=>x.id===id); if(!item) return;
+  saveItem({...item, boxId:document.getElementById('m-move-box').value, locationId:document.getElementById('m-move-loc').value});
+  close('m-move'); refreshAll(); toast('Item movido!','success');
+}
+
+// ════════════════════════════════════════════════════
+// LOCATIONS
+// ════════════════════════════════════════════════════
+
+function renderLocs(){
+  const locs=getLocations(), boxes=getBoxes();
+  const cnt={}; boxes.forEach(b=>{ if(b.locationId) cnt[b.locationId]=(cnt[b.locationId]||0)+1; });
+  const list=document.getElementById('locs-list');
+  if(!locs.length){ list.innerHTML='<div class="empty"><div class="empty-icon">📍</div>Nenhuma localidade.</div>'; return; }
+  list.innerHTML=locs.map(l=>`
+    <div class="loc-card">
+      <div>
+        <div class="loc-name">📍 ${esc(l.name)}</div>
+        <div class="loc-meta">${esc(l.description||'')}${cnt[l.id]?` · ${cnt[l.id]} caixa(s)`:''}</div>
+      </div>
+      <div style="display:flex;gap:.35rem">
+        <button class="btn btn-sm btn-secondary" onclick="openLocForm('${l.id}')">✏️ Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="delLoc('${l.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function openLocForm(id){
+  const l=id?getLocations().find(x=>x.id===id):null;
+  document.getElementById('f-loc-id').value=id||'';
+  document.getElementById('f-loc-name').value=l?l.name:'';
+  document.getElementById('f-loc-desc').value=l?(l.description||''):'';
+  document.getElementById('m-loc-title').textContent=id?'Editar Localidade':'Nova Localidade';
+  open_('m-loc');
+}
+
+function saveLoc_(){
+  const id=document.getElementById('f-loc-id').value;
+  const name=document.getElementById('f-loc-name').value.trim();
+  if(!name){ toast('Nome obrigatório.','error'); return; }
+  saveLocation({id:id||uid(),name,description:document.getElementById('f-loc-desc').value.trim()});
+  close('m-loc'); renderLocs();
+  toast(id?'Localidade atualizada!':'Localidade criada!','success');
+}
+
+function delLoc(id){
+  if(getBoxes().filter(b=>b.locationId===id).length){ toast('Remova as caixas desta localidade primeiro.','error'); return; }
+  if(!confirm('Excluir esta localidade?')) return;
+  deleteLocation(id); renderLocs(); toast('Localidade excluída.','info');
+}
+
+// ════════════════════════════════════════════════════
 // LABELS
-// ============================================================
+// ════════════════════════════════════════════════════
 
-function populateLabelSelect() {
-  const boxes = getBoxes();
-  const sel = document.getElementById('label-box-select');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">Escolha uma caixa...</option>' + boxes.map(b => `<option value="${b.id}">${escHtml(b.name)}</option>`).join('');
-  sel.value = prev;
+function fillLabelSelect(){
+  const boxes=getBoxes();
+  const sel=document.getElementById('lbl-box'); const prev=sel.value;
+  sel.innerHTML='<option value="">Escolha...</option>'+boxes.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  sel.value=prev;
 }
 
-function renderLabel() {
-  const id = document.getElementById('label-box-select').value;
-  const preview = document.getElementById('label-preview');
-  if (!id) { preview.innerHTML = ''; return; }
-
-  const box = getBoxes().find(b => b.id === id);
-  if (!box) return;
-  const items = getItems().filter(i => i.boxId === id);
-  const locations = getLocations();
-  const locMap = {};
-  locations.forEach(l => locMap[l.id] = l.name);
-
-  const topItems = items.slice(0, 8);
-  preview.innerHTML = `
-    <div class="label-card" id="printable-label">
-      <div class="label-box-name">${escHtml(box.name)}</div>
-      <div class="label-category">${escHtml(box.category||'—')}</div>
-      <div class="label-location">📍 ${escHtml(locMap[box.locationId]||'—')}</div>
-      ${box.tags ? `<div class="tags" style="margin-top:0.5rem">${renderTags(box.tags,'tag-purple')}</div>` : ''}
+function renderLabel(){
+  const id=document.getElementById('lbl-box').value;
+  const preview=document.getElementById('label-preview');
+  if(!id){ preview.innerHTML=''; return; }
+  const box=getBoxes().find(b=>b.id===id); if(!box) return;
+  const items=getItems().filter(i=>i.boxId===id);
+  const locs=getLocations(); const locMap={}; locs.forEach(l=>locMap[l.id]=l.name);
+  const top=items.slice(0,8);
+  preview.innerHTML=`
+    <div class="label-preview-card" id="printable-label">
+      <div class="label-name">${esc(box.name)}</div>
+      <div class="label-cat">${esc(box.category||'—')}</div>
+      <div class="label-loc">📍 ${esc(locMap[box.locationId]||'—')}</div>
+      ${box.tags?`<div class="tags" style="margin-top:.5rem">${tags2html(box.tags,'tag-purple')}</div>`:''}
       <div class="label-items-list">
-        <strong style="font-size:0.85rem">Conteúdo:</strong>
-        <ul>
-          ${topItems.map(i => `<li>${escHtml(i.name)}${i.quantity > 1 ? ` (${i.quantity})` : ''}</li>`).join('')}
-          ${items.length > 8 ? `<li style="color:var(--muted)">... e mais ${items.length - 8} item(s)</li>` : ''}
+        <strong>Conteúdo:</strong>
+        <ul>${top.map(i=>`<li>${esc(i.name)}${i.quantity>1?` (${i.quantity})`:''}</li>`).join('')}
+          ${items.length>8?`<li style="color:var(--muted)">... e mais ${items.length-8} item(s)</li>`:''}
         </ul>
       </div>
-      <div class="label-qr-placeholder">
-        <div class="qr-box">QR Code<br>(futuro)</div>
-        <div style="font-size:0.8rem;color:var(--muted)">
+      <div class="label-qr">
+        <div class="qr-placeholder">QR Code<br>(em breve)</div>
+        <div style="font-size:.78rem;color:var(--muted)">
           <div>${items.length} item(s) total</div>
-          <div style="margin-top:0.25rem">Atualizado: ${fmtDate(box.updatedAt)}</div>
+          <div>Atualizado: ${fmtDate(box.updatedAt)}</div>
         </div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-function openLabelForBox(id) {
-  showSection('labels');
-  document.getElementById('label-box-select').value = id;
+function goLabel(boxId){
+  go('etiquetas');
+  document.getElementById('lbl-box').value=boxId;
   renderLabel();
 }
 
-function printLabel() {
-  const label = document.getElementById('printable-label');
-  if (!label) { showToast('Selecione uma caixa primeiro.', 'error'); return; }
-  const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiqueta</title>
+function printLabel(){
+  const el=document.getElementById('printable-label');
+  if(!el){ toast('Selecione uma caixa primeiro.','error'); return; }
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiqueta</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 20px; }
-    .label-card { border: 2px solid #ccc; border-radius: 10px; padding: 20px; max-width: 400px; }
-    .label-box-name { font-size: 2rem; font-weight: 900; color: #4F46E5; }
-    .label-category { font-size: 1rem; font-weight: 600; margin: 4px 0; }
-    .label-location { font-size: 0.9rem; color: #64748B; }
-    .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-    .tag { padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; }
-    .label-items-list { margin-top: 12px; padding-top: 12px; border-top: 1px solid #E2E8F0; }
-    ul { padding-left: 18px; font-size: 0.85rem; }
-    .qr-box { width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #64748B; text-align: center; }
-    .label-qr-placeholder { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #E2E8F0; font-size: 0.8rem; color: #64748B; }
-  </style></head><body>${label.outerHTML}</body></html>`);
-  win.document.close();
-  win.print();
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:20px}
+    .label-preview-card{border:2.5px solid #ccc;border-radius:12px;padding:20px;max-width:400px}
+    .label-name{font-size:2rem;font-weight:900;color:#6366F1}
+    .label-cat{font-size:.95rem;font-weight:600;margin:4px 0}
+    .label-loc{font-size:.82rem;color:#64748B}
+    .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+    .tag{padding:2px 8px;border-radius:99px;font-size:.72rem;font-weight:600;background:#F5F3FF;color:#6D28D9}
+    .label-items-list{margin-top:10px;padding-top:10px;border-top:1px solid #E2E8F0;font-size:.83rem}
+    ul{padding-left:18px}
+    .label-qr{display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid #E2E8F0;font-size:.78rem;color:#64748B}
+    .qr-placeholder{width:80px;height:80px;border:2px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.65rem;text-align:center;flex-shrink:0}
+  </style></head><body>${el.outerHTML}</body></html>`);
+  w.document.close(); w.print();
 }
 
-// ============================================================
-// REFRESH ALL
-// ============================================================
-
-function refreshAll() {
-  const active = document.querySelector('.section.active');
-  if (active) {
-    const id = active.id;
-    if (id === 'dashboard') renderDashboard();
-    if (id === 'boxes') { populateBoxFilters(); renderBoxes(); }
-    if (id === 'items') { populateItemFilters(); renderItems(); }
-    if (id === 'locations') renderLocations();
-    if (id === 'labels') { populateLabelSelect(); renderLabel(); }
-  }
-}
-
-// ============================================================
+// ════════════════════════════════════════════════════
 // INIT
-// ============================================================
+// ════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
-  initializeDefaultData();
-  renderDashboard();
+  initData();
+  renderHome();
+  updateNavBadge();
 });
 </script>
 </body>
