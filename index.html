@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventário de Caixas</title>
+<style>
+:root {
+  --primary: #4F46E5;
+  --primary-light: #818CF8;
+  --secondary: #7C3AED;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+  --bg: #F1F5F9;
+  --card: #FFFFFF;
+  --text: #1E293B;
+  --muted: #64748B;
+  --border: #E2E8F0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+a { color: var(--primary); text-decoration: none; }
+
+/* NAV */
+.navbar {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+  min-height: 56px;
+}
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary);
+  padding: 0.75rem 0;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+.nav-tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.nav-tab {
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  white-space: nowrap;
+}
+.nav-tab:hover { background: var(--bg); color: var(--text); }
+.nav-tab.active { background: var(--primary); color: #fff; }
+
+/* MAIN */
+.main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; }
+.section { display: none; }
+.section.active { display: block; }
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.section-title { font-size: 1.4rem; font-weight: 700; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #4338CA; }
+.btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #DC2626; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #059669; }
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-warning:hover { background: #D97706; }
+.btn-info { background: var(--info); color: #fff; }
+.btn-info:hover { background: #2563EB; }
+.btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; }
+.btn-icon { padding: 0.35rem 0.5rem; }
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+}
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+.card-title { font-weight: 700; font-size: 1rem; }
+.card-subtitle { font-size: 0.82rem; color: var(--muted); margin-top: 0.15rem; }
+
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+
+/* TAGS */
+.tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+.tag {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 99px;
+  font-size: 0.73rem;
+  font-weight: 500;
+}
+.tag-primary { background: #EEF2FF; color: var(--primary); }
+.tag-success { background: #ECFDF5; color: #047857; }
+.tag-warning { background: #FFFBEB; color: #92400E; }
+.tag-danger { background: #FEF2F2; color: #991B1B; }
+.tag-info { background: #EFF6FF; color: #1D4ED8; }
+.tag-gray { background: #F1F5F9; color: var(--muted); }
+.tag-purple { background: #F5F3FF; color: #6D28D9; }
+
+/* BADGE */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-novo { background: #ECFDF5; color: #047857; }
+.badge-usado { background: #FFFBEB; color: #92400E; }
+.badge-defeito { background: #FEF2F2; color: #991B1B; }
+.badge-desconhecido { background: #F1F5F9; color: var(--muted); }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  text-align: center;
+}
+.stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); line-height: 1; }
+.stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+
+/* TABLE */
+.table-wrapper { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; background: var(--card); }
+thead { background: var(--bg); }
+th { padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+td { padding: 0.75rem 1rem; font-size: 0.88rem; border-top: 1px solid var(--border); vertical-align: middle; }
+tr:hover td { background: #FAFBFF; }
+.td-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  background: var(--card);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.filter-group { display: flex; flex-direction: column; gap: 0.25rem; min-width: 140px; flex: 1; }
+.filter-group label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* INPUTS */
+input[type=text], input[type=number], input[type=search], select, textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--card);
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+textarea { resize: vertical; min-height: 80px; }
+.form-group { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
+.form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-weight: 700; font-size: 1.05rem; }
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--muted);
+  line-height: 1;
+  padding: 0.1rem 0.3rem;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* TOAST */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.toast {
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  animation: slideIn 0.2s ease;
+  max-width: 320px;
+}
+.toast-success { background: var(--success); }
+.toast-error { background: var(--danger); }
+.toast-info { background: var(--info); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* BOX CARD */
+.box-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: box-shadow 0.15s;
+}
+.box-card:hover { box-shadow: var(--shadow-md); }
+.box-name { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
+.box-location { font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem; }
+.box-category { font-size: 0.88rem; font-weight: 600; }
+.box-items-count { font-size: 0.8rem; color: var(--muted); }
+.box-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem; }
+
+/* SEARCH RESULTS */
+.search-section { margin-bottom: 1.5rem; }
+.search-section-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.search-result-item {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.search-result-name { font-weight: 600; font-size: 0.92rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+.highlight { background: #FEF3C7; border-radius: 2px; padding: 0 2px; }
+.no-results { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.9rem; }
+
+/* LABEL */
+.label-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  max-width: 380px;
+}
+.label-box-name { font-size: 1.6rem; font-weight: 900; color: var(--primary); }
+.label-category { font-size: 0.95rem; font-weight: 600; margin: 0.25rem 0; }
+.label-location { font-size: 0.85rem; color: var(--muted); }
+.label-items-list { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+.label-items-list ul { list-style: disc; padding-left: 1.2rem; font-size: 0.85rem; }
+.label-qr-placeholder {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.qr-box {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* DATA MANAGEMENT */
+.data-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.data-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.data-card p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1rem; }
+
+/* DETAILS VIEW */
+.detail-section { margin-bottom: 1.5rem; }
+.detail-section h4 { font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+.empty-state-text { font-size: 0.95rem; }
+
+/* LOCATION CARD */
+.location-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.location-name { font-weight: 700; font-size: 1rem; }
+.location-meta { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* SEARCH BAR */
+.search-bar-wrap {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.search-input-row { display: flex; gap: 0.5rem; }
+.search-input-row input { flex: 1; }
+.search-options { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem; font-size: 0.85rem; }
+.search-option { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+.search-option input { width: auto; }
+
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-row { grid-template-columns: 1fr; }
+  .modal { max-height: 95vh; }
+}
+@media print {
+  .navbar, .btn, .modal-overlay, .toast-container { display: none !important; }
+  .main { padding: 0; }
+  .section { display: block !important; }
+  .section:not(#labels) { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-brand">📦 Inventário</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
+    <button class="nav-tab" onclick="showSection('boxes')">Caixas</button>
+    <button class="nav-tab" onclick="showSection('items')">Itens</button>
+    <button class="nav-tab" onclick="showSection('locations')">Localidades</button>
+    <button class="nav-tab" onclick="showSection('search')">Busca</button>
+    <button class="nav-tab" onclick="showSection('labels')">Etiquetas</button>
+    <button class="nav-tab" onclick="showSection('data')">Dados</button>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="section active">
+    <div class="section-header">
+      <h1 class="section-title">Dashboard</h1>
+    </div>
+    <div class="stats-grid" id="dashboard-stats"></div>
+    <div class="grid-2" id="dashboard-details"></div>
+  </div>
+
+  <!-- BOXES -->
+  <div id="boxes" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Caixas</h1>
+      <button class="btn btn-primary" onclick="openBoxForm()">+ Nova Caixa</button>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <label>Localidade</label>
+        <select id="filter-box-location" onchange="renderBoxes()">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Categoria</label>
+        <select id="filter-box-category" onchange="renderBoxes()">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Buscar</label>
+        <input type="search" id="filter-box-search" placeholder="Nome ou observação..." oninput="renderBoxes()">
+      </div>
+    </div>
+    <div class="grid-2" id="boxes-grid"></div>
+  </div>
+
+  <!-- ITEMS -->
+  <div id="items" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Itens</h1>
+      <button class="btn btn-primary" onclick="openItemForm()">+ Novo Item</button>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <label>Caixa</label>
+        <select id="filter-item-box" onchange="renderItems()">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Localidade</label>
+        <select id="filter-item-location" onchange="renderItems()">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Categoria</label>
+        <select id="filter-item-category" onchange="renderItems()">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Estado</label>
+        <select id="filter-item-state" onchange="renderItems()">
+          <option value="">Todos</option>
+          <option value="novo">Novo</option>
+          <option value="usado">Usado</option>
+          <option value="com defeito">Com Defeito</option>
+          <option value="desconhecido">Desconhecido</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Buscar</label>
+        <input type="search" id="filter-item-search" placeholder="Nome, tag, sinônimo..." oninput="renderItems()">
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Caixa</th>
+            <th>Localidade</th>
+            <th>Qtd</th>
+            <th>Estado</th>
+            <th>Posição</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="items-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LOCATIONS -->
+  <div id="locations" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Localidades</h1>
+      <button class="btn btn-primary" onclick="openLocationForm()">+ Nova Localidade</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem" id="locations-list"></div>
+  </div>
+
+  <!-- SEARCH -->
+  <div id="search" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Busca Avançada</h1>
+    </div>
+    <div class="search-bar-wrap">
+      <div class="search-input-row">
+        <input type="search" id="search-input" placeholder="Buscar itens, caixas, localidades..." oninput="performSearch()">
+        <button class="btn btn-primary" onclick="performSearch()">Buscar</button>
+      </div>
+      <div class="search-options">
+        <label class="search-option">
+          <input type="checkbox" id="search-regex" onchange="performSearch()"> Usar Regex
+        </label>
+        <label class="search-option">
+          <input type="checkbox" id="search-fuzzy" checked onchange="performSearch()"> Busca Aproximada (Fuzzy)
+        </label>
+      </div>
+    </div>
+    <div id="search-results"></div>
+  </div>
+
+  <!-- LABELS -->
+  <div id="labels" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Etiquetas</h1>
+    </div>
+    <div class="filters" style="margin-bottom:1.5rem">
+      <div class="filter-group">
+        <label>Selecionar Caixa</label>
+        <select id="label-box-select" onchange="renderLabel()">
+          <option value="">Escolha uma caixa...</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button class="btn btn-primary" onclick="printLabel()">🖨️ Imprimir</button>
+      </div>
+    </div>
+    <div id="label-preview"></div>
+  </div>
+
+  <!-- DATA MANAGEMENT -->
+  <div id="data" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Importar / Exportar</h1>
+    </div>
+    <div class="data-card">
+      <h3>📤 Exportar Dados</h3>
+      <p>Salva todos os dados (localidades, caixas, itens e categorias) em um arquivo JSON.</p>
+      <button class="btn btn-success" onclick="exportData()">Exportar JSON</button>
+    </div>
+    <div class="data-card">
+      <h3>📥 Importar Dados</h3>
+      <p>Restaura os dados a partir de um arquivo JSON exportado anteriormente. Os dados atuais serão substituídos.</p>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-info" onclick="document.getElementById('import-file').click()">Importar JSON</button>
+    </div>
+    <div class="data-card" style="border:2px solid var(--danger)">
+      <h3 style="color:var(--danger)">🗑️ Limpar Todos os Dados</h3>
+      <p>Remove permanentemente todos os dados. Esta ação não pode ser desfeita.</p>
+      <button class="btn btn-danger" onclick="clearAllData()">Limpar Dados</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: BOX -->
+<div class="modal-overlay" id="modal-box">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-box-title">Nova Caixa</span>
+      <button class="modal-close" onclick="closeModal('modal-box')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="box-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome da Caixa *</label>
+          <input type="text" id="box-name" placeholder="Ex: Caixa A">
+        </div>
+        <div class="form-group">
+          <label>Localidade *</label>
+          <select id="box-location"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoria Principal</label>
+          <input type="text" id="box-category" placeholder="Ex: Cabos USB">
+        </div>
+        <div class="form-group">
+          <label>Tags <small style="color:var(--muted)">(separadas por vírgula)</small></label>
+          <input type="text" id="box-tags" placeholder="Ex: eletrônica, cabos">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea id="box-observations" placeholder="Observações gerais sobre a caixa..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-box')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBoxForm()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ITEM -->
+<div class="modal-overlay" id="modal-item">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-item-title">Novo Item</span>
+      <button class="modal-close" onclick="closeModal('modal-item')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="item-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome do Item *</label>
+          <input type="text" id="item-name" placeholder="Ex: Cabo USB-C">
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <input type="text" id="item-category" placeholder="Ex: Cabos">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Caixa</label>
+          <select id="item-box" onchange="updateItemLocation()"></select>
+        </div>
+        <div class="form-group">
+          <label>Localidade</label>
+          <select id="item-location"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantidade</label>
+          <input type="number" id="item-quantity" value="1" min="0">
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select id="item-state">
+            <option value="desconhecido">Desconhecido</option>
+            <option value="novo">Novo</option>
+            <option value="usado">Usado</option>
+            <option value="com defeito">Com Defeito</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Posição Interna</label>
+          <input type="text" id="item-position" placeholder="Ex: Saquinho A-01">
+        </div>
+        <div class="form-group">
+          <label>Tags <small style="color:var(--muted)">(vírgula)</small></label>
+          <input type="text" id="item-tags" placeholder="Ex: usb, cabo">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Sinônimos / Palavras Relacionadas <small style="color:var(--muted)">(vírgula)</small></label>
+        <input type="text" id="item-synonyms" placeholder="Ex: micro usb, carregador, conector">
+      </div>
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea id="item-observations" placeholder="Detalhes adicionais..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-item')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveItemForm()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: LOCATION -->
+<div class="modal-overlay" id="modal-location">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-location-title">Nova Localidade</span>
+      <button class="modal-close" onclick="closeModal('modal-location')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="location-id">
+      <div class="form-group">
+        <label>Nome da Localidade *</label>
+        <input type="text" id="location-name" placeholder="Ex: Escritório">
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea id="location-description" placeholder="Descrição opcional..." style="min-height:60px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-location')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveLocationForm()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: BOX DETAILS -->
+<div class="modal-overlay" id="modal-box-details">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-box-details-title">Detalhes da Caixa</span>
+      <button class="modal-close" onclick="closeModal('modal-box-details')">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-box-details-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-box-details')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MOVE ITEM -->
+<div class="modal-overlay" id="modal-move-item">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title">Mover Item</span>
+      <button class="modal-close" onclick="closeModal('modal-move-item')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="move-item-name" style="margin-bottom:1rem;font-weight:600"></p>
+      <input type="hidden" id="move-item-id">
+      <div class="form-group">
+        <label>Mover para a Caixa</label>
+        <select id="move-item-box"></select>
+      </div>
+      <div class="form-group">
+        <label>Localidade (atualizar)</label>
+        <select id="move-item-location"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-move-item')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmMoveItem()">Mover</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ============================================================
+// DATA LAYER — abstracts storage; swap localStorage for Firebase here
+// ============================================================
+
+const STORAGE_KEY = 'inventario_data';
+
+function _load() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { locations: [], boxes: [], items: [], categories: [], lastUpdated: '' };
+  } catch { return { locations: [], boxes: [], items: [], categories: [], lastUpdated: '' }; }
+}
+
+function _save(data) {
+  data.lastUpdated = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function getLocations() { return _load().locations; }
+function getBoxes() { return _load().boxes; }
+function getItems() { return _load().items; }
+function getCategories() {
+  const data = _load();
+  const cats = new Set(data.categories || []);
+  data.boxes.forEach(b => { if (b.category) cats.add(b.category); });
+  data.items.forEach(i => { if (i.category) cats.add(i.category); });
+  return [...cats].sort();
+}
+
+function saveLocation(location) {
+  const data = _load();
+  const idx = data.locations.findIndex(l => l.id === location.id);
+  if (idx >= 0) {
+    data.locations[idx] = { ...data.locations[idx], ...location, updatedAt: new Date().toISOString() };
+  } else {
+    data.locations.push({ ...location, id: location.id || generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  }
+  _save(data);
+}
+
+function deleteLocation(id) {
+  const data = _load();
+  data.locations = data.locations.filter(l => l.id !== id);
+  _save(data);
+}
+
+function saveBox(box) {
+  const data = _load();
+  const idx = data.boxes.findIndex(b => b.id === box.id);
+  if (idx >= 0) {
+    data.boxes[idx] = { ...data.boxes[idx], ...box, updatedAt: new Date().toISOString() };
+  } else {
+    data.boxes.push({ ...box, id: box.id || generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  }
+  _save(data);
+}
+
+function deleteBox(id) {
+  const data = _load();
+  data.boxes = data.boxes.filter(b => b.id !== id);
+  _save(data);
+}
+
+function saveItem(item) {
+  const data = _load();
+  const idx = data.items.findIndex(i => i.id === item.id);
+  if (idx >= 0) {
+    data.items[idx] = { ...data.items[idx], ...item, updatedAt: new Date().toISOString() };
+  } else {
+    data.items.push({ ...item, id: item.id || generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  }
+  _save(data);
+}
+
+function deleteItem(id) {
+  const data = _load();
+  data.items = data.items.filter(i => i.id !== id);
+  _save(data);
+}
+
+function getAllData() { return _load(); }
+
+function exportData() {
+  const data = getAllData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `inventario_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Dados exportados com sucesso!', 'success');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.locations || !data.boxes || !data.items) throw new Error('Formato inválido');
+      _save(data);
+      refreshAll();
+      showToast('Dados importados com sucesso!', 'success');
+    } catch {
+      showToast('Erro: arquivo JSON inválido.', 'error');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  if (!confirm('Tem certeza? Todos os dados serão removidos permanentemente.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  refreshAll();
+  showToast('Todos os dados foram removidos.', 'info');
+}
+
+// ============================================================
+// DEFAULT DATA
+// ============================================================
+
+function initializeDefaultData() {
+  const existing = _load();
+  if (existing.locations.length > 0) return;
+
+  const locs = [
+    { id: 'loc1', name: 'Dispensa', description: 'Armário de dispensa da cozinha' },
+    { id: 'loc2', name: 'Depósito', description: 'Depósito de itens gerais' },
+    { id: 'loc3', name: 'Escritório', description: 'Sala de escritório/home office' },
+    { id: 'loc4', name: 'Quarto Principal', description: 'Quarto principal do casal' },
+    { id: 'loc5', name: 'Rack da Sala', description: 'Rack de TV na sala de estar' },
+  ];
+  locs.forEach(l => saveLocation(l));
+
+  const now = new Date().toISOString();
+  const boxes = [
+    { id: 'box-a', name: 'Caixa A', locationId: 'loc3', category: 'Cabos USB e celular', tags: 'cabos,usb,celular', observations: '' },
+    { id: 'box-b', name: 'Caixa B', locationId: 'loc3', category: 'Arduino e prototipagem', tags: 'arduino,eletrônica,prototipagem', observations: '' },
+    { id: 'box-c', name: 'Caixa C', locationId: 'loc3', category: 'Placas e eletrônica', tags: 'placas,componentes,eletrônica', observations: '' },
+    { id: 'box-d', name: 'Caixa D', locationId: 'loc3', category: 'Soldagem', tags: 'solda,ferro,ferramentas', observations: '' },
+    { id: 'box-e', name: 'Caixa E', locationId: 'loc2', category: 'Elétrica residencial', tags: 'elétrica,lâmpadas,fios', observations: '' },
+    { id: 'box-f', name: 'Caixa F', locationId: 'loc2', category: 'LED e fontes', tags: 'led,fonte,iluminação', observations: '' },
+    { id: 'box-g', name: 'Caixa G', locationId: 'loc3', category: 'Impressora 3D', tags: '3d,impressora,filamento', observations: '' },
+  ];
+  boxes.forEach(b => saveBox({ ...b, createdAt: now, updatedAt: now }));
+
+  const items = [
+    // Caixa A
+    { name: 'Cabos de celular', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 5, tags: 'cabo,celular', synonyms: 'carregador,cabo carregador', state: 'usado', observations: '', internalPosition: '' },
+    { name: 'Cabos USB-C', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 4, tags: 'usb-c,cabo', synonyms: 'usbc,type-c,tipo c', state: 'usado', observations: '', internalPosition: '' },
+    { name: 'Cabos USB Micro', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 6, tags: 'micro-usb,cabo', synonyms: 'micro usb,microusb', state: 'usado', observations: '', internalPosition: '' },
+    { name: 'Cabos USB em geral', category: 'Cabos', boxId: 'box-a', locationId: 'loc3', quantity: 10, tags: 'usb,cabo', synonyms: 'cabo usb', state: 'desconhecido', observations: 'Variados', internalPosition: 'Fundo da caixa' },
+    // Caixa B
+    { name: 'Peças Arduino', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 8, tags: 'arduino,placa', synonyms: 'arduíno,microcontrolador,uno,nano,mega', state: 'desconhecido', observations: '', internalPosition: '' },
+    { name: 'Fios de Arduino', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 30, tags: 'fio,jumper,arduino', synonyms: 'jumper,cabo jumper,fio macho', state: 'novo', observations: '', internalPosition: 'Saquinho B-01' },
+    { name: 'Conectores pequenos', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 20, tags: 'conector,arduino', synonyms: 'header,pino,borne,terminal', state: 'novo', observations: '', internalPosition: 'Saquinho B-02' },
+    { name: 'Componentes diversos de Arduino', category: 'Arduino', boxId: 'box-b', locationId: 'loc3', quantity: 15, tags: 'componente,arduino,eletrônica', synonyms: 'resistor,capacitor,led,transistor,sensor', state: 'desconhecido', observations: 'Misturados', internalPosition: '' },
+    // Caixa C
+    { name: 'Placas eletrônicas', category: 'Eletrônica', boxId: 'box-c', locationId: 'loc3', quantity: 5, tags: 'placa,pcb,eletrônica', synonyms: 'pcb,circuito impresso,shield', state: 'desconhecido', observations: '', internalPosition: '' },
+    { name: 'Componentes eletrônicos diversos', category: 'Eletrônica', boxId: 'box-c', locationId: 'loc3', quantity: 50, tags: 'componente,eletrônica', synonyms: 'resistor,capacitor,diodo,transistor,ci', state: 'desconhecido', observations: '', internalPosition: 'Divisórias internas' },
+    // Caixa D
+    { name: 'Ferro de solda', category: 'Soldagem', boxId: 'box-d', locationId: 'loc3', quantity: 1, tags: 'ferro,solda,ferramentas', synonyms: 'soldador,estação de solda', state: 'usado', observations: 'Estação de solda regulável', internalPosition: '' },
+    { name: 'Estanho de solda', category: 'Soldagem', boxId: 'box-d', locationId: 'loc3', quantity: 2, tags: 'estanho,solda', synonyms: 'solda,fio de solda,liga', state: 'usado', observations: '', internalPosition: '' },
+    { name: 'Acessórios de soldagem', category: 'Soldagem', boxId: 'box-d', locationId: 'loc3', quantity: 7, tags: 'acessório,solda', synonyms: 'sugador,flux,suporte,esponja', state: 'usado', observations: '', internalPosition: '' },
+    // Caixa E
+    { name: 'Lâmpadas', category: 'Elétrica', boxId: 'box-e', locationId: 'loc2', quantity: 6, tags: 'lâmpada,elétrica,iluminação', synonyms: 'lampada,bulbo,led,fluorescente', state: 'novo', observations: '', internalPosition: '' },
+    { name: 'Tomadas de parede', category: 'Elétrica', boxId: 'box-e', locationId: 'loc2', quantity: 4, tags: 'tomada,elétrica', synonyms: 'interruptor,plug,plugue,receptáculo', state: 'novo', observations: '', internalPosition: '' },
+    { name: 'Fios de diversos tamanhos', category: 'Elétrica', boxId: 'box-e', locationId: 'loc2', quantity: 10, tags: 'fio,cabo,elétrica', synonyms: 'cabo elétrico,fio elétrico,condutor', state: 'usado', observations: 'Vários bitolas', internalPosition: '' },
+    // Caixa F
+    { name: 'Fonte de LED antiga', category: 'LED', boxId: 'box-f', locationId: 'loc2', quantity: 1, tags: 'fonte,led,alimentação', synonyms: 'driver led,transformador,conversor', state: 'usado', observations: 'Fonte 12V para fita LED', internalPosition: '' },
+    // Caixa G
+    { name: 'Itens de impressora 3D', category: 'Impressora 3D', boxId: 'box-g', locationId: 'loc3', quantity: 12, tags: '3d,impressora,peça', synonyms: 'filamento,bico,nozzle,extrusor,termistor,plataforma', state: 'desconhecido', observations: 'Peças de reposição e melhorias', internalPosition: '' },
+  ];
+  items.forEach(i => saveItem({ ...i, id: generateId(), createdAt: now, updatedAt: now }));
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.getAttribute('onclick') && t.getAttribute('onclick').includes(`'${name}'`)) t.classList.add('active');
+  });
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'boxes') { populateBoxFilters(); renderBoxes(); }
+  if (name === 'items') { populateItemFilters(); renderItems(); }
+  if (name === 'locations') renderLocations();
+  if (name === 'labels') { populateLabelSelect(); renderLabel(); }
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+function normalizeText(text) {
+  return (text || '').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function parseTags(str) {
+  return (str || '').split(',').map(t => t.trim()).filter(Boolean);
+}
+
+function renderTags(tags, colorClass = 'tag-primary') {
+  return parseTags(Array.isArray(tags) ? tags.join(',') : tags)
+    .map(t => `<span class="tag ${colorClass}">${escHtml(t)}</span>`).join('');
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function stateBadge(state) {
+  const map = { novo: 'badge-novo', usado: 'badge-usado', 'com defeito': 'badge-defeito', desconhecido: 'badge-desconhecido' };
+  return `<span class="badge ${map[state] || 'badge-desconhecido'}">${escHtml(state || 'desconhecido')}</span>`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('pt-BR');
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+
+function renderDashboard() {
+  const locations = getLocations();
+  const boxes = getBoxes();
+  const items = getItems();
+
+  const cats = {};
+  items.forEach(i => { if (i.category) cats[i.category] = (cats[i.category] || 0) + 1; });
+  const topCats = Object.entries(cats).sort((a,b) => b[1]-a[1]).slice(0,5);
+
+  const boxItemCount = {};
+  boxes.forEach(b => boxItemCount[b.id] = 0);
+  items.forEach(i => { if (i.boxId) boxItemCount[i.boxId] = (boxItemCount[i.boxId] || 0) + 1; });
+  const topBoxes = boxes.map(b => ({ ...b, count: boxItemCount[b.id] || 0 })).sort((a,b) => b.count-a.count).slice(0,5);
+  const noBox = items.filter(i => !i.boxId).length;
+  const noLoc = items.filter(i => !i.locationId).length;
+
+  document.getElementById('dashboard-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${boxes.length}</div><div class="stat-label">Caixas</div></div>
+    <div class="stat-card"><div class="stat-value">${items.length}</div><div class="stat-label">Itens</div></div>
+    <div class="stat-card"><div class="stat-value">${locations.length}</div><div class="stat-label">Localidades</div></div>
+    <div class="stat-card"><div class="stat-value">${getCategories().length}</div><div class="stat-label">Categorias</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--warning)">${noBox}</div><div class="stat-label">Itens sem caixa</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--danger)">${noLoc}</div><div class="stat-label">Itens sem localidade</div></div>
+  `;
+
+  const locMap = {};
+  locations.forEach(l => locMap[l.id] = l.name);
+
+  document.getElementById('dashboard-details').innerHTML = `
+    <div class="card">
+      <div class="card-header"><span class="card-title">🏆 Categorias mais usadas</span></div>
+      ${topCats.length ? topCats.map(([cat, cnt]) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:0.9rem">${escHtml(cat)}</span>
+          <span class="badge badge-novo">${cnt} item${cnt>1?'s':''}</span>
+        </div>`).join('') : '<p style="color:var(--muted);font-size:0.88rem">Nenhuma categoria cadastrada.</p>'}
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">📦 Caixas com mais itens</span></div>
+      ${topBoxes.length ? topBoxes.map(b => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+          <div>
+            <span style="font-weight:600;font-size:0.9rem">${escHtml(b.name)}</span>
+            <span style="font-size:0.78rem;color:var(--muted);margin-left:0.5rem">${escHtml(locMap[b.locationId] || '—')}</span>
+          </div>
+          <span class="badge badge-novo">${b.count} item${b.count>1?'s':''}</span>
+        </div>`).join('') : '<p style="color:var(--muted);font-size:0.88rem">Nenhuma caixa cadastrada.</p>'}
+    </div>
+  `;
+}
+
+// ============================================================
+// LOCATIONS
+// ============================================================
+
+function renderLocations() {
+  const locations = getLocations();
+  const boxes = getBoxes();
+  const locBoxCount = {};
+  boxes.forEach(b => { if (b.locationId) locBoxCount[b.locationId] = (locBoxCount[b.locationId]||0)+1; });
+
+  const list = document.getElementById('locations-list');
+  if (!locations.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📍</div><div class="empty-state-text">Nenhuma localidade cadastrada.</div></div>';
+    return;
+  }
+  list.innerHTML = locations.map(l => `
+    <div class="location-card">
+      <div>
+        <div class="location-name">📍 ${escHtml(l.name)}</div>
+        <div class="location-meta">${escHtml(l.description || '')} · ${locBoxCount[l.id]||0} caixa(s)</div>
+      </div>
+      <div style="display:flex;gap:0.35rem">
+        <button class="btn btn-sm btn-secondary" onclick="openLocationForm('${l.id}')">✏️ Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteLocationUI('${l.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openLocationForm(id) {
+  const loc = id ? getLocations().find(l => l.id === id) : null;
+  document.getElementById('location-id').value = id || '';
+  document.getElementById('location-name').value = loc ? loc.name : '';
+  document.getElementById('location-description').value = loc ? (loc.description || '') : '';
+  document.getElementById('modal-location-title').textContent = id ? 'Editar Localidade' : 'Nova Localidade';
+  openModal('modal-location');
+}
+
+function saveLocationForm() {
+  const id = document.getElementById('location-id').value;
+  const name = document.getElementById('location-name').value.trim();
+  if (!name) { showToast('Nome é obrigatório.', 'error'); return; }
+  saveLocation({ id: id || generateId(), name, description: document.getElementById('location-description').value.trim() });
+  closeModal('modal-location');
+  renderLocations();
+  showToast(id ? 'Localidade atualizada!' : 'Localidade criada!', 'success');
+  populateBoxFilters(); populateItemFilters();
+}
+
+function deleteLocationUI(id) {
+  const boxes = getBoxes().filter(b => b.locationId === id);
+  if (boxes.length) { showToast(`Não é possível excluir: ${boxes.length} caixa(s) nesta localidade.`, 'error'); return; }
+  if (!confirm('Excluir esta localidade?')) return;
+  deleteLocation(id);
+  renderLocations();
+  showToast('Localidade excluída.', 'info');
+}
+
+// ============================================================
+// BOXES
+// ============================================================
+
+function populateBoxFilters() {
+  const locations = getLocations();
+  const cats = getCategories();
+  const sel = document.getElementById('filter-box-location');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">Todas</option>' + locations.map(l => `<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
+  sel.value = prev;
+
+  const csel = document.getElementById('filter-box-category');
+  const cprev = csel.value;
+  csel.innerHTML = '<option value="">Todas</option>' + cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+  csel.value = cprev;
+}
+
+function renderBoxes() {
+  const boxes = getBoxes();
+  const items = getItems();
+  const locations = getLocations();
+  const locMap = {};
+  locations.forEach(l => locMap[l.id] = l.name);
+
+  const locFilter = document.getElementById('filter-box-location').value;
+  const catFilter = document.getElementById('filter-box-category').value;
+  const searchVal = normalizeText(document.getElementById('filter-box-search').value);
+
+  const filtered = boxes.filter(b => {
+    if (locFilter && b.locationId !== locFilter) return false;
+    if (catFilter && b.category !== catFilter) return false;
+    if (searchVal) {
+      const haystack = normalizeText([b.name, b.category, b.observations, b.tags].join(' '));
+      if (!haystack.includes(searchVal)) return false;
+    }
+    return true;
+  });
+
+  const boxItemCount = {};
+  items.forEach(i => { if (i.boxId) boxItemCount[i.boxId] = (boxItemCount[i.boxId]||0)+1; });
+
+  const grid = document.getElementById('boxes-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📦</div><div class="empty-state-text">Nenhuma caixa encontrada.</div></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(b => `
+    <div class="box-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="box-name">${escHtml(b.name)}</div>
+        <span class="tag tag-gray">${boxItemCount[b.id]||0} itens</span>
+      </div>
+      <div class="box-location">📍 ${escHtml(locMap[b.locationId] || '—')}</div>
+      ${b.category ? `<div class="box-category">${escHtml(b.category)}</div>` : ''}
+      ${b.observations ? `<div style="font-size:0.82rem;color:var(--muted)">${escHtml(b.observations)}</div>` : ''}
+      <div class="tags">${renderTags(b.tags, 'tag-purple')}</div>
+      <div class="box-actions">
+        <button class="btn btn-sm btn-info" onclick="viewBoxDetails('${b.id}')">👁 Ver</button>
+        <button class="btn btn-sm btn-secondary" onclick="openBoxForm('${b.id}')">✏️ Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteBoxUI('${b.id}')">🗑️</button>
+        <button class="btn btn-sm btn-warning" onclick="openLabelForBox('${b.id}')">🏷️ Etiqueta</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openBoxForm(id) {
+  const box = id ? getBoxes().find(b => b.id === id) : null;
+  const locations = getLocations();
+  document.getElementById('box-id').value = id || '';
+  document.getElementById('box-name').value = box ? box.name : '';
+  document.getElementById('box-category').value = box ? (box.category || '') : '';
+  document.getElementById('box-tags').value = box ? (box.tags || '') : '';
+  document.getElementById('box-observations').value = box ? (box.observations || '') : '';
+  const locSel = document.getElementById('box-location');
+  locSel.innerHTML = '<option value="">Selecione...</option>' + locations.map(l => `<option value="${l.id}" ${box && box.locationId===l.id?'selected':''}>${escHtml(l.name)}</option>`).join('');
+  document.getElementById('modal-box-title').textContent = id ? 'Editar Caixa' : 'Nova Caixa';
+  openModal('modal-box');
+}
+
+function saveBoxForm() {
+  const id = document.getElementById('box-id').value;
+  const name = document.getElementById('box-name').value.trim();
+  const locationId = document.getElementById('box-location').value;
+  if (!name) { showToast('Nome é obrigatório.', 'error'); return; }
+  if (!locationId) { showToast('Selecione uma localidade.', 'error'); return; }
+  saveBox({
+    id: id || generateId(), name, locationId,
+    category: document.getElementById('box-category').value.trim(),
+    tags: document.getElementById('box-tags').value.trim(),
+    observations: document.getElementById('box-observations').value.trim()
+  });
+  closeModal('modal-box');
+  renderBoxes();
+  showToast(id ? 'Caixa atualizada!' : 'Caixa criada!', 'success');
+}
+
+function deleteBoxUI(id) {
+  const itemsInBox = getItems().filter(i => i.boxId === id);
+  if (itemsInBox.length) { showToast(`Esta caixa tem ${itemsInBox.length} item(s). Mova-os antes de excluir.`, 'error'); return; }
+  if (!confirm('Excluir esta caixa?')) return;
+  deleteBox(id);
+  renderBoxes();
+  showToast('Caixa excluída.', 'info');
+}
+
+function viewBoxDetails(id) {
+  const box = getBoxes().find(b => b.id === id);
+  if (!box) return;
+  const items = getItems().filter(i => i.boxId === id);
+  const locations = getLocations();
+  const locMap = {};
+  locations.forEach(l => locMap[l.id] = l.name);
+
+  document.getElementById('modal-box-details-title').textContent = `📦 ${box.name}`;
+  document.getElementById('modal-box-details-body').innerHTML = `
+    <div class="detail-section">
+      <h4>Informações</h4>
+      <div class="form-row" style="gap:0.5rem;margin-bottom:0">
+        <div><strong>Localidade:</strong> ${escHtml(locMap[box.locationId]||'—')}</div>
+        <div><strong>Categoria:</strong> ${escHtml(box.category||'—')}</div>
+      </div>
+      ${box.observations ? `<div style="margin-top:0.5rem;font-size:0.88rem;color:var(--muted)">${escHtml(box.observations)}</div>` : ''}
+      <div class="tags" style="margin-top:0.5rem">${renderTags(box.tags, 'tag-purple')}</div>
+    </div>
+    <div class="detail-section">
+      <h4>Itens (${items.length})</h4>
+      ${items.length ? `
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Nome</th><th>Categoria</th><th>Qtd</th><th>Estado</th><th>Posição</th><th>Ações</th></tr></thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>${escHtml(item.name)}</td>
+                  <td>${escHtml(item.category||'—')}</td>
+                  <td>${item.quantity||1}</td>
+                  <td>${stateBadge(item.state)}</td>
+                  <td>${escHtml(item.internalPosition||'—')}</td>
+                  <td class="td-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="closeModal('modal-box-details');openItemForm('${item.id}')">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteItemFromDetails('${item.id}','${id}')">🗑️</button>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : '<p style="color:var(--muted);font-size:0.88rem">Nenhum item nesta caixa.</p>'}
+    </div>
+    <div style="margin-top:1rem">
+      <button class="btn btn-primary btn-sm" onclick="closeModal('modal-box-details');openItemFormForBox('${id}')">+ Adicionar Item</button>
+    </div>
+  `;
+  openModal('modal-box-details');
+}
+
+function deleteItemFromDetails(itemId, boxId) {
+  if (!confirm('Excluir este item?')) return;
+  deleteItem(itemId);
+  viewBoxDetails(boxId);
+  showToast('Item excluído.', 'info');
+}
+
+// ============================================================
+// ITEMS
+// ============================================================
+
+function populateItemFilters() {
+  const boxes = getBoxes();
+  const locations = getLocations();
+  const cats = getCategories();
+
+  const bsel = document.getElementById('filter-item-box');
+  const bprev = bsel.value;
+  bsel.innerHTML = '<option value="">Todas</option>' + boxes.map(b => `<option value="${b.id}">${escHtml(b.name)}</option>`).join('');
+  bsel.value = bprev;
+
+  const lsel = document.getElementById('filter-item-location');
+  const lprev = lsel.value;
+  lsel.innerHTML = '<option value="">Todas</option>' + locations.map(l => `<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
+  lsel.value = lprev;
+
+  const csel = document.getElementById('filter-item-category');
+  const cprev = csel.value;
+  csel.innerHTML = '<option value="">Todas</option>' + cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+  csel.value = cprev;
+}
+
+function renderItems() {
+  const items = getItems();
+  const boxes = getBoxes();
+  const locations = getLocations();
+  const boxMap = {};
+  boxes.forEach(b => boxMap[b.id] = b.name);
+  const locMap = {};
+  locations.forEach(l => locMap[l.id] = l.name);
+
+  const boxFilter = document.getElementById('filter-item-box').value;
+  const locFilter = document.getElementById('filter-item-location').value;
+  const catFilter = document.getElementById('filter-item-category').value;
+  const stateFilter = document.getElementById('filter-item-state').value;
+  const searchVal = normalizeText(document.getElementById('filter-item-search').value);
+
+  const filtered = items.filter(i => {
+    if (boxFilter && i.boxId !== boxFilter) return false;
+    if (locFilter && i.locationId !== locFilter) return false;
+    if (catFilter && i.category !== catFilter) return false;
+    if (stateFilter && i.state !== stateFilter) return false;
+    if (searchVal) {
+      const haystack = normalizeText([i.name, i.category, i.tags, i.synonyms, i.observations].join(' '));
+      if (!haystack.includes(searchVal)) return false;
+    }
+    return true;
+  });
+
+  const tbody = document.getElementById('items-tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="no-results">Nenhum item encontrado.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(item => `
+    <tr>
+      <td>
+        <div style="font-weight:600">${escHtml(item.name)}</div>
+        ${item.tags ? `<div class="tags" style="margin-top:0.3rem">${renderTags(item.tags,'tag-gray')}</div>` : ''}
+      </td>
+      <td>${escHtml(item.category||'—')}</td>
+      <td>${escHtml(boxMap[item.boxId]||'—')}</td>
+      <td>${escHtml(locMap[item.locationId]||'—')}</td>
+      <td>${item.quantity||1}</td>
+      <td>${stateBadge(item.state)}</td>
+      <td style="font-size:0.82rem;color:var(--muted)">${escHtml(item.internalPosition||'—')}</td>
+      <td class="td-actions">
+        <button class="btn btn-sm btn-secondary" onclick="openItemForm('${item.id}')">✏️</button>
+        <button class="btn btn-sm btn-info" onclick="openMoveItem('${item.id}')">↕️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteItemUI('${item.id}')">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openItemForm(id) {
+  _fillItemForm(id, null);
+}
+
+function openItemFormForBox(boxId) {
+  _fillItemForm(null, boxId);
+}
+
+function _fillItemForm(id, defaultBoxId) {
+  const item = id ? getItems().find(i => i.id === id) : null;
+  const boxes = getBoxes();
+  const locations = getLocations();
+
+  document.getElementById('item-id').value = id || '';
+  document.getElementById('item-name').value = item ? item.name : '';
+  document.getElementById('item-category').value = item ? (item.category||'') : '';
+  document.getElementById('item-quantity').value = item ? (item.quantity||1) : 1;
+  document.getElementById('item-state').value = item ? (item.state||'desconhecido') : 'desconhecido';
+  document.getElementById('item-position').value = item ? (item.internalPosition||'') : '';
+  document.getElementById('item-tags').value = item ? (item.tags||'') : '';
+  document.getElementById('item-synonyms').value = item ? (item.synonyms||'') : '';
+  document.getElementById('item-observations').value = item ? (item.observations||'') : '';
+
+  const bsel = document.getElementById('item-box');
+  bsel.innerHTML = '<option value="">Sem caixa</option>' + boxes.map(b => `<option value="${b.id}">${escHtml(b.name)}</option>`).join('');
+  bsel.value = item ? (item.boxId||'') : (defaultBoxId||'');
+
+  const lsel = document.getElementById('item-location');
+  lsel.innerHTML = '<option value="">Sem localidade</option>' + locations.map(l => `<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
+  lsel.value = item ? (item.locationId||'') : '';
+
+  if (!item && (defaultBoxId || bsel.value)) updateItemLocation();
+
+  document.getElementById('modal-item-title').textContent = id ? 'Editar Item' : 'Novo Item';
+  openModal('modal-item');
+}
+
+function updateItemLocation() {
+  const boxId = document.getElementById('item-box').value;
+  if (!boxId) return;
+  const box = getBoxes().find(b => b.id === boxId);
+  if (box && box.locationId) {
+    document.getElementById('item-location').value = box.locationId;
+  }
+}
+
+function saveItemForm() {
+  const id = document.getElementById('item-id').value;
+  const name = document.getElementById('item-name').value.trim();
+  if (!name) { showToast('Nome é obrigatório.', 'error'); return; }
+  saveItem({
+    id: id || generateId(),
+    name,
+    category: document.getElementById('item-category').value.trim(),
+    boxId: document.getElementById('item-box').value,
+    locationId: document.getElementById('item-location').value,
+    quantity: parseInt(document.getElementById('item-quantity').value)||1,
+    state: document.getElementById('item-state').value,
+    internalPosition: document.getElementById('item-position').value.trim(),
+    tags: document.getElementById('item-tags').value.trim(),
+    synonyms: document.getElementById('item-synonyms').value.trim(),
+    observations: document.getElementById('item-observations').value.trim()
+  });
+  closeModal('modal-item');
+  renderItems();
+  showToast(id ? 'Item atualizado!' : 'Item criado!', 'success');
+}
+
+function deleteItemUI(id) {
+  if (!confirm('Excluir este item?')) return;
+  deleteItem(id);
+  renderItems();
+  showToast('Item excluído.', 'info');
+}
+
+function openMoveItem(id) {
+  const item = getItems().find(i => i.id === id);
+  if (!item) return;
+  const boxes = getBoxes();
+  const locations = getLocations();
+
+  document.getElementById('move-item-id').value = id;
+  document.getElementById('move-item-name').textContent = item.name;
+
+  const bsel = document.getElementById('move-item-box');
+  bsel.innerHTML = '<option value="">Sem caixa</option>' + boxes.map(b => `<option value="${b.id}" ${b.id===item.boxId?'selected':''}>${escHtml(b.name)}</option>`).join('');
+
+  const lsel = document.getElementById('move-item-location');
+  lsel.innerHTML = '<option value="">Sem localidade</option>' + locations.map(l => `<option value="${l.id}" ${l.id===item.locationId?'selected':''}>${escHtml(l.name)}</option>`).join('');
+
+  openModal('modal-move-item');
+}
+
+function confirmMoveItem() {
+  const id = document.getElementById('move-item-id').value;
+  const item = getItems().find(i => i.id === id);
+  if (!item) return;
+  saveItem({ ...item, boxId: document.getElementById('move-item-box').value, locationId: document.getElementById('move-item-location').value });
+  closeModal('modal-move-item');
+  renderItems();
+  showToast('Item movido!', 'success');
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m+1 }, (_, i) => Array.from({ length: n+1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function fuzzyMatch(needle, haystack) {
+  const n = normalizeText(needle);
+  const h = normalizeText(haystack);
+  if (h.includes(n)) return true;
+  const words = n.split(/\s+/).filter(Boolean);
+  return words.some(w => {
+    if (w.length <= 3) return h.includes(w);
+    const hWords = h.split(/\s+/);
+    return hWords.some(hw => levenshtein(w, hw) <= Math.floor(w.length * 0.3));
+  });
+}
+
+function performSearch() {
+  const query = document.getElementById('search-input').value.trim();
+  const useRegex = document.getElementById('search-regex').checked;
+  const useFuzzy = document.getElementById('search-fuzzy').checked;
+  const container = document.getElementById('search-results');
+
+  if (!query) { container.innerHTML = ''; return; }
+
+  const items = getItems();
+  const boxes = getBoxes();
+  const locations = getLocations();
+  const locMap = {}; locations.forEach(l => locMap[l.id] = l.name);
+  const boxMap = {}; boxes.forEach(b => boxMap[b.id] = b.name);
+
+  let matchFn;
+  if (useRegex) {
+    try {
+      const re = new RegExp(query, 'i');
+      matchFn = (text) => re.test(text || '');
+    } catch { container.innerHTML = '<p style="color:var(--danger);padding:1rem">Regex inválido.</p>'; return; }
+  } else if (useFuzzy) {
+    matchFn = (text) => fuzzyMatch(query, text || '');
+  } else {
+    const q = normalizeText(query);
+    matchFn = (text) => normalizeText(text || '').includes(q);
+  }
+
+  function matchItem(item) {
+    return matchFn(item.name) || matchFn(item.category) || matchFn(item.tags) ||
+      matchFn(item.synonyms) || matchFn(item.observations) ||
+      matchFn(boxMap[item.boxId]) || matchFn(locMap[item.locationId]);
+  }
+  function matchBox(box) {
+    return matchFn(box.name) || matchFn(box.category) || matchFn(box.tags) || matchFn(box.observations) || matchFn(locMap[box.locationId]);
+  }
+  function matchLocation(loc) {
+    return matchFn(loc.name) || matchFn(loc.description);
+  }
+
+  const foundItems = items.filter(matchItem);
+  const foundBoxes = boxes.filter(matchBox);
+  const foundLocations = locations.filter(matchLocation);
+  const total = foundItems.length + foundBoxes.length + foundLocations.length;
+
+  if (!total) {
+    container.innerHTML = '<div class="no-results">Nenhum resultado encontrado para "' + escHtml(query) + '".</div>';
+    return;
+  }
+
+  let html = `<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem">${total} resultado(s) encontrado(s)</p>`;
+
+  if (foundItems.length) {
+    html += `<div class="search-section"><div class="search-section-title">📦 Itens (${foundItems.length})</div>`;
+    html += foundItems.map(item => `
+      <div class="search-result-item">
+        <div>
+          <div class="search-result-name">${escHtml(item.name)}</div>
+          <div class="search-result-meta">${escHtml(boxMap[item.boxId]||'Sem caixa')} · ${escHtml(locMap[item.locationId]||'Sem localidade')} · ${escHtml(item.category||'—')}</div>
+          ${item.tags ? `<div class="tags" style="margin-top:0.3rem">${renderTags(item.tags,'tag-gray')}</div>` : ''}
+        </div>
+        <div style="display:flex;gap:0.35rem">
+          <button class="btn btn-sm btn-secondary" onclick="openItemForm('${item.id}')">✏️</button>
+        </div>
+      </div>`).join('');
+    html += '</div>';
+  }
+
+  if (foundBoxes.length) {
+    html += `<div class="search-section"><div class="search-section-title">🗂 Caixas (${foundBoxes.length})</div>`;
+    html += foundBoxes.map(box => `
+      <div class="search-result-item">
+        <div>
+          <div class="search-result-name">${escHtml(box.name)}</div>
+          <div class="search-result-meta">${escHtml(locMap[box.locationId]||'—')} · ${escHtml(box.category||'—')}</div>
+        </div>
+        <div style="display:flex;gap:0.35rem">
+          <button class="btn btn-sm btn-info" onclick="showSection('boxes');viewBoxDetails('${box.id}')">👁 Ver</button>
+        </div>
+      </div>`).join('');
+    html += '</div>';
+  }
+
+  if (foundLocations.length) {
+    html += `<div class="search-section"><div class="search-section-title">📍 Localidades (${foundLocations.length})</div>`;
+    html += foundLocations.map(loc => `
+      <div class="search-result-item">
+        <div>
+          <div class="search-result-name">${escHtml(loc.name)}</div>
+          <div class="search-result-meta">${escHtml(loc.description||'')}</div>
+        </div>
+      </div>`).join('');
+    html += '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+// ============================================================
+// LABELS
+// ============================================================
+
+function populateLabelSelect() {
+  const boxes = getBoxes();
+  const sel = document.getElementById('label-box-select');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">Escolha uma caixa...</option>' + boxes.map(b => `<option value="${b.id}">${escHtml(b.name)}</option>`).join('');
+  sel.value = prev;
+}
+
+function renderLabel() {
+  const id = document.getElementById('label-box-select').value;
+  const preview = document.getElementById('label-preview');
+  if (!id) { preview.innerHTML = ''; return; }
+
+  const box = getBoxes().find(b => b.id === id);
+  if (!box) return;
+  const items = getItems().filter(i => i.boxId === id);
+  const locations = getLocations();
+  const locMap = {};
+  locations.forEach(l => locMap[l.id] = l.name);
+
+  const topItems = items.slice(0, 8);
+  preview.innerHTML = `
+    <div class="label-card" id="printable-label">
+      <div class="label-box-name">${escHtml(box.name)}</div>
+      <div class="label-category">${escHtml(box.category||'—')}</div>
+      <div class="label-location">📍 ${escHtml(locMap[box.locationId]||'—')}</div>
+      ${box.tags ? `<div class="tags" style="margin-top:0.5rem">${renderTags(box.tags,'tag-purple')}</div>` : ''}
+      <div class="label-items-list">
+        <strong style="font-size:0.85rem">Conteúdo:</strong>
+        <ul>
+          ${topItems.map(i => `<li>${escHtml(i.name)}${i.quantity > 1 ? ` (${i.quantity})` : ''}</li>`).join('')}
+          ${items.length > 8 ? `<li style="color:var(--muted)">... e mais ${items.length - 8} item(s)</li>` : ''}
+        </ul>
+      </div>
+      <div class="label-qr-placeholder">
+        <div class="qr-box">QR Code<br>(futuro)</div>
+        <div style="font-size:0.8rem;color:var(--muted)">
+          <div>${items.length} item(s) total</div>
+          <div style="margin-top:0.25rem">Atualizado: ${fmtDate(box.updatedAt)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openLabelForBox(id) {
+  showSection('labels');
+  document.getElementById('label-box-select').value = id;
+  renderLabel();
+}
+
+function printLabel() {
+  const label = document.getElementById('printable-label');
+  if (!label) { showToast('Selecione uma caixa primeiro.', 'error'); return; }
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiqueta</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 20px; }
+    .label-card { border: 2px solid #ccc; border-radius: 10px; padding: 20px; max-width: 400px; }
+    .label-box-name { font-size: 2rem; font-weight: 900; color: #4F46E5; }
+    .label-category { font-size: 1rem; font-weight: 600; margin: 4px 0; }
+    .label-location { font-size: 0.9rem; color: #64748B; }
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .tag { padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; }
+    .label-items-list { margin-top: 12px; padding-top: 12px; border-top: 1px solid #E2E8F0; }
+    ul { padding-left: 18px; font-size: 0.85rem; }
+    .qr-box { width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #64748B; text-align: center; }
+    .label-qr-placeholder { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #E2E8F0; font-size: 0.8rem; color: #64748B; }
+  </style></head><body>${label.outerHTML}</body></html>`);
+  win.document.close();
+  win.print();
+}
+
+// ============================================================
+// REFRESH ALL
+// ============================================================
+
+function refreshAll() {
+  const active = document.querySelector('.section.active');
+  if (active) {
+    const id = active.id;
+    if (id === 'dashboard') renderDashboard();
+    if (id === 'boxes') { populateBoxFilters(); renderBoxes(); }
+    if (id === 'items') { populateItemFilters(); renderItems(); }
+    if (id === 'locations') renderLocations();
+    if (id === 'labels') { populateLabelSelect(); renderLabel(); }
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializeDefaultData();
+  renderDashboard();
+});
+</script>
+</body>
+</html>
