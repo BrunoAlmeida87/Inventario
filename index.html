@@ -205,6 +205,31 @@ tr:hover td{background:#FAFBFF}
 .label-qr{display:flex;align-items:center;gap:.9rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
 .qr-placeholder{width:80px;height:80px;border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--muted);text-align:center;flex-shrink:0}
 
+/* ── DRAG & DROP ── */
+.dd-board{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+@media(max-width:640px){.dd-board{grid-template-columns:1fr}}
+.dd-col-header{font-weight:700;font-size:.92rem;margin-bottom:.75rem;display:flex;align-items:center}
+.dd-pool{display:flex;flex-direction:column;gap:.4rem;min-height:120px}
+.dd-boxes{display:flex;flex-direction:column;gap:.5rem}
+.dd-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .9rem;cursor:grab;font-size:.86rem;font-weight:600;box-shadow:var(--shadow);transition:box-shadow .15s,border-color .15s;user-select:none}
+.dd-card:hover{box-shadow:var(--shadow-md);border-color:var(--primary)}
+.dd-card.dragging{opacity:.4;cursor:grabbing}
+.dd-card.selected{border-color:var(--primary);background:var(--primary-light)}
+.dd-box-target{background:var(--card);border:2px dashed var(--border);border-radius:var(--radius);padding:.85rem 1rem;transition:border-color .15s,background .15s}
+.dd-box-target.drag-over{border-color:var(--primary);background:var(--primary-light)}
+.dd-box-target.touch-selected{border-color:var(--success);background:var(--success-light)}
+.dd-box-name{font-weight:700;font-size:.92rem;color:var(--primary);margin-bottom:.2rem}
+.dd-box-meta{font-size:.78rem;color:var(--muted)}
+.dd-box-items{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+.dd-empty{text-align:center;color:var(--muted);font-size:.84rem;padding:1.5rem;border:1.5px dashed var(--border);border-radius:var(--radius-sm)}
+
+/* ── HISTORY TABLE ── */
+.hist-row{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem 1rem;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.84rem}
+.hist-row:last-child{border-bottom:none}
+.hist-ts{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.hist-name{font-weight:600}
+.hist-move{font-size:.78rem;color:var(--muted)}
+
 /* ── DATA SCREEN ── */
 .data-block{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.4rem;margin-bottom:.9rem}
 .data-block h3{font-size:.98rem;font-weight:700;margin-bottom:.4rem}
@@ -239,6 +264,7 @@ tr:hover td{background:#FAFBFF}
       <button class="tab" onclick="go('caixas')">📦 Caixas</button>
       <button class="tab" onclick="go('itens')">📝 Itens</button>
       <button class="tab" onclick="go('localidades')">📍 Localidades</button>
+      <button class="tab" onclick="go('arrastar')">🎯 Arrastar</button>
       <button class="tab" onclick="go('etiquetas')">🏷️ Etiquetas</button>
       <button class="tab" onclick="go('dados')">⚙️ Dados</button>
     </div>
@@ -253,7 +279,7 @@ tr:hover td{background:#FAFBFF}
       <h2>Onde está o quê?</h2>
       <p>Digite o nome do item, categoria, caixa ou localidade</p>
       <div class="search-bar">
-        <input type="search" id="s-input" placeholder="Ex: ferro de solda, Caixa A, Escritório..." oninput="doSearch()" autofocus>
+        <input type="search" id="s-input" placeholder="Ex: ferro de solda, Caixa A, Escritório..." oninput="debouncedSearch()" autofocus>
       </div>
       <div class="quick-stats">
         <div class="qs" onclick="go('caixas')"><div class="qs-val" id="qs-boxes">0</div><div class="qs-lbl">caixas</div></div>
@@ -369,6 +395,24 @@ ferro de solda"></textarea>
     <div id="locs-list"></div>
   </div>
 
+  <!-- ═══ ARRASTAR ═══ -->
+  <div id="arrastar" class="section">
+    <div class="sec-header">
+      <h1 class="sec-title">Arrastar & Organizar</h1>
+      <span id="dd-unassigned-count" style="font-size:.85rem;color:var(--muted)"></span>
+    </div>
+    <div id="dd-board" class="dd-board">
+      <div class="dd-col">
+        <div class="dd-col-header">📦 Itens sem caixa <span id="dd-items-count" class="badge-pill" style="position:static;background:var(--warning);margin-left:.3rem"></span></div>
+        <div id="dd-items-pool" class="dd-pool"></div>
+      </div>
+      <div class="dd-col">
+        <div class="dd-col-header">🗂 Caixas</div>
+        <div id="dd-boxes-list" class="dd-boxes"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ ETIQUETAS ═══ -->
   <div id="etiquetas" class="section">
     <div class="sec-header"><h1 class="sec-title">Etiquetas</h1></div>
@@ -388,13 +432,21 @@ ferro de solda"></textarea>
     <div class="data-block">
       <h3>📤 Exportar dados</h3>
       <p>Salva tudo em um arquivo JSON que pode ser reimportado depois.</p>
-      <button class="btn btn-success" onclick="exportData()">Exportar JSON</button>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button class="btn btn-success" onclick="exportData()">Exportar JSON</button>
+        <button class="btn btn-success" onclick="exportCSV()">Exportar CSV</button>
+      </div>
     </div>
     <div class="data-block">
       <h3>📥 Importar dados</h3>
       <p>Restaura a partir de um JSON exportado. Os dados atuais serão substituídos.</p>
       <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importJSON(event)">
       <button class="btn btn-info" onclick="document.getElementById('imp-file').click()">Importar JSON</button>
+    </div>
+    <div class="data-block">
+      <h3>📋 Histórico de movimentações</h3>
+      <p>Registro de todas as movimentações de itens entre caixas e localidades.</p>
+      <button class="btn btn-info" onclick="openHistory()">Ver histórico</button>
     </div>
     <div class="data-block" style="border:2px solid var(--danger)">
       <h3 style="color:var(--danger)">🗑️ Limpar todos os dados</h3>
@@ -511,6 +563,27 @@ ferro de solda"></textarea>
   </div>
 </div>
 
+<!-- Custom confirm -->
+<div class="overlay" id="m-confirm">
+  <div class="modal" style="max-width:380px">
+    <div class="mh"><span class="mh-title">Confirmar ação</span></div>
+    <div class="mc"><p id="m-confirm-msg" style="font-size:.92rem;line-height:1.5"></p></div>
+    <div class="mf">
+      <button class="btn btn-secondary" onclick="_confirmCancel()">Cancelar</button>
+      <button class="btn btn-danger" id="m-confirm-ok" onclick="_confirmOk()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- History modal -->
+<div class="overlay" id="m-history">
+  <div class="modal modal-lg">
+    <div class="mh"><span class="mh-title">📋 Histórico de movimentações</span><button class="btn-close" onclick="close('m-history')">×</button></div>
+    <div class="mc" id="m-history-body"></div>
+    <div class="mf"><button class="btn btn-secondary" onclick="close('m-history')">Fechar</button></div>
+  </div>
+</div>
+
 <div class="toasts" id="toasts"></div>
 
 <script>
@@ -522,12 +595,28 @@ ferro de solda"></textarea>
 
 const KEY = 'inv2_data';
 
+let _cache = null;
+let _saveTimer = null;
+
 function _load() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || _empty(); }
-  catch { return _empty(); }
+  if (_cache) return _cache;
+  try { _cache = JSON.parse(localStorage.getItem(KEY)) || _empty(); }
+  catch { _cache = _empty(); }
+  return _cache;
 }
-function _empty() { return { locations:[], boxes:[], items:[], lastUpdated:'' }; }
-function _save(d) { d.lastUpdated = new Date().toISOString(); localStorage.setItem(KEY, JSON.stringify(d)); }
+function _empty() { return { locations:[], boxes:[], items:[], history:[], lastUpdated:'' }; }
+function _save(d) {
+  _cache = d;
+  d.lastUpdated = new Date().toISOString();
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(d)); }
+    catch(e) {
+      if (e.name === 'QuotaExceededError' || e.code === 22)
+        toast('Armazenamento cheio! Exporte seus dados agora para evitar perda.', 'error');
+    }
+  }, 400);
+}
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function now() { return new Date().toISOString(); }
@@ -600,8 +689,9 @@ function importJSON(e) {
 }
 
 function clearAll() {
-  if (!confirm('Remover TODOS os dados permanentemente?')) return;
-  localStorage.removeItem(KEY); refreshAll(); toast('Dados removidos.','info');
+  confirmDialog('Remover TODOS os dados permanentemente? Essa ação não pode ser desfeita.', () => {
+    _cache = null; localStorage.removeItem(KEY); refreshAll(); toast('Dados removidos.','info');
+  }, 'Apagar tudo');
 }
 
 // ════════════════════════════════════════════════════
@@ -667,15 +757,35 @@ function stateBadge(s){
   return `<span class="badge-state ${m[s]||'s-desconhecido'}">${esc(s||'desconhecido')}</span>`;
 }
 
-function toast(msg, type='info'){
+function toast(msg, type='info', duration=3200){
   const c = document.getElementById('toasts');
   const el = document.createElement('div');
   el.className = `toast t-${type}`; el.textContent = msg;
-  c.appendChild(el); setTimeout(()=>el.remove(), 3200);
+  c.appendChild(el);
+  const t = setTimeout(()=>el.remove(), duration);
+  el._timer = t;
+  return el;
 }
 
-function open_(id){ document.getElementById(id).classList.add('open'); }
-function close(id){ document.getElementById(id).classList.remove('open'); }
+function open_(id){
+  document.getElementById(id).classList.add('open');
+  // move focus to first focusable element
+  const m = document.getElementById(id);
+  const f = m.querySelector('input:not([type=hidden]),select,textarea,button');
+  if(f) setTimeout(()=>f.focus(), 50);
+}
+function close(id){
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('open');
+  // return focus to opener if tracked
+  if(_lastFocused){ _lastFocused.focus(); _lastFocused=null; }
+}
+
+let _lastFocused = null;
+function open_tracked(id){
+  _lastFocused = document.activeElement;
+  open_(id);
+}
 
 // ════════════════════════════════════════════════════
 // NAVIGATION
@@ -694,6 +804,7 @@ function go(name){
   if(name==='caixas'){ fillBoxFilters(); renderBoxes(); }
   if(name==='itens'){ fillItemFilters(); renderItems(); }
   if(name==='localidades') renderLocs();
+  if(name==='arrastar') renderDragDrop();
   if(name==='etiquetas'){ fillLabelSelect(); renderLabel(); }
 }
 
@@ -717,6 +828,7 @@ function refreshAll(){
   if(id==='caixas'){ fillBoxFilters(); renderBoxes(); }
   if(id==='itens'){ fillItemFilters(); renderItems(); }
   if(id==='localidades') renderLocs();
+  if(id==='arrastar') renderDragDrop();
   if(id==='etiquetas'){ fillLabelSelect(); renderLabel(); }
 }
 
@@ -917,7 +1029,7 @@ function assignCatToBox(cat, selId){
   const target=cat==='__none__'?'':cat;
   const toMove=getItems().filter(i=>!i.boxId&&(i.category||'')===(target));
   if(!toMove.length){ toast('Nenhum item encontrado.','info'); return; }
-  toMove.forEach(i=>saveItem({...i, boxId, locationId:box.locationId||i.locationId}));
+  toMove.forEach(i=>{ recordHistory(i, boxId, box.locationId||i.locationId); saveItem({...i, boxId, locationId:box.locationId||i.locationId}); });
   renderOrganize(); updateNavBadge(); renderHome();
   toast(`${toMove.length} item(s) movido(s) para ${box.name}!`,'success');
 }
@@ -1173,8 +1285,9 @@ function saveBox_(){
 
 function delBox(id){
   if(getItems().filter(i=>i.boxId===id).length){ toast('Mova os itens antes de excluir a caixa.','error'); return; }
-  if(!confirm('Excluir esta caixa?')) return;
-  deleteBox(id); renderBoxes(); toast('Caixa excluída.','info');
+  confirmDialog('Excluir esta caixa?', () => {
+    deleteBox(id); renderBoxes(); toast('Caixa excluída.','info');
+  });
 }
 
 function viewBox(id){
@@ -1214,8 +1327,9 @@ function viewBox(id){
 }
 
 function delItemInBox(itemId, boxId){
-  if(!confirm('Excluir este item?')) return;
-  deleteItem(itemId); viewBox(boxId); updateNavBadge(); toast('Item excluído.','info');
+  confirmDialog('Excluir este item?', () => {
+    deleteItem(itemId); viewBox(boxId); updateNavBadge(); toast('Item excluído.','info');
+  });
 }
 
 // ════════════════════════════════════════════════════
@@ -1337,10 +1451,7 @@ function saveItem_(){
   toast(id?'Item atualizado!':'Item criado!','success');
 }
 
-function delItem(id){
-  if(!confirm('Excluir este item?')) return;
-  deleteItem(id); refreshAll(); toast('Item excluído.','info');
-}
+function delItem(id){ delItemWithUndo(id); }
 
 function openMove(id){
   const item=getItems().find(x=>x.id===id); if(!item) return;
@@ -1357,7 +1468,10 @@ function openMove(id){
 function confirmMove(){
   const id=document.getElementById('m-move-id').value;
   const item=getItems().find(x=>x.id===id); if(!item) return;
-  saveItem({...item, boxId:document.getElementById('m-move-box').value, locationId:document.getElementById('m-move-loc').value});
+  const newBox=document.getElementById('m-move-box').value;
+  const newLoc=document.getElementById('m-move-loc').value;
+  recordHistory(item, newBox, newLoc);
+  saveItem({...item, boxId:newBox, locationId:newLoc});
   close('m-move'); refreshAll(); toast('Item movido!','success');
 }
 
@@ -1403,8 +1517,9 @@ function saveLoc_(){
 
 function delLoc(id){
   if(getBoxes().filter(b=>b.locationId===id).length){ toast('Remova as caixas desta localidade primeiro.','error'); return; }
-  if(!confirm('Excluir esta localidade?')) return;
-  deleteLocation(id); renderLocs(); toast('Localidade excluída.','info');
+  confirmDialog('Excluir esta localidade?', () => {
+    deleteLocation(id); renderLocs(); toast('Localidade excluída.','info');
+  });
 }
 
 // ════════════════════════════════════════════════════
@@ -1439,10 +1554,11 @@ function renderLabel(){
         </ul>
       </div>
       <div class="label-qr">
-        <div class="qr-placeholder">QR Code<br>(em breve)</div>
+        <div id="qr-canvas" style="flex-shrink:0">${QRGen.svg(`INV:${box.name}:${box.id}`,3)||'<div class="qr-placeholder">QR N/D</div>'}</div>
         <div style="font-size:.78rem;color:var(--muted)">
           <div>${items.length} item(s) total</div>
           <div>Atualizado: ${fmtDate(box.updatedAt)}</div>
+          <div style="margin-top:.3rem;font-size:.7rem;word-break:break-all">INV:${esc(box.name)}</div>
         </div>
       </div>
     </div>`;
@@ -1470,10 +1586,293 @@ function printLabel(){
     .label-items-list{margin-top:10px;padding-top:10px;border-top:1px solid #E2E8F0;font-size:.83rem}
     ul{padding-left:18px}
     .label-qr{display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid #E2E8F0;font-size:.78rem;color:#64748B}
-    .qr-placeholder{width:80px;height:80px;border:2px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.65rem;text-align:center;flex-shrink:0}
+    #qr-canvas svg{display:block}
   </style></head><body>${el.outerHTML}</body></html>`);
   w.document.close(); w.print();
 }
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════
+// QR CODE GENERATOR (minimal, byte mode, ECC-M, v1-4)
+// ════════════════════════════════════════════════════
+const QRGen=(()=>{
+  const EXP=new Uint8Array(512),LOG=new Uint8Array(256);
+  (()=>{ let x=1; for(let i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x=(x<<1)^(x&128?285:0);} for(let i=255;i<512;i++)EXP[i]=EXP[i-255]; })();
+  const mul=(a,b)=>a&&b?EXP[LOG[a]+LOG[b]]:0;
+  function rsGen(n){ const g=[1]; for(let i=0;i<n;i++){g.push(0);for(let j=g.length-1;j>0;j--)g[j]=g[j-1]^mul(g[j],EXP[i]);g[0]=mul(g[0],EXP[i]);} return g; }
+  function rsEnc(data,gen){ const n=gen.length-1,r=new Uint8Array(n); for(const b of data){const c=b^r[0];for(let i=0;i<n-1;i++)r[i]=r[i+1]^mul(c,gen[n-1-i]);r[n-1]=mul(c,gen[0]);} return r; }
+  // version info: [dataBytes, ecBytes, blocks] for ECC-M
+  const VI=[[0,0,0],[16,10,1],[28,16,1],[44,26,2],[64,36,2]];
+  const FMTM=[0x5412,0x5125,0x5E7C,0x5B4B,0x45F9,0x40CE,0x4F97,0x4AA0];
+  const ALIGN=[[],[],[6,18],[6,22],[6,26]];
+  function ver(len){ for(let v=1;v<=4;v++)if(len+2<=VI[v][0])return v; return null; }
+  function mk(n){ return Array.from({length:n},()=>new Array(n).fill(null)); }
+  function setFinder(m,r,c){ const p=[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]]; for(let i=0;i<7;i++)for(let j=0;j<7;j++)m[r+i][c+j]=p[i][j]; }
+  function setSep(m,n){ for(let i=0;i<8;i++){m[7][i]=m[i][7]=m[7][n-1-i]=m[i][n-8]=m[n-8][i]=m[n-1-i][7]=0;} }
+  function setTime(m,n){ for(let i=8;i<n-8;i++){m[6][i]=m[i][6]=i%2?0:1;} }
+  function setAlign(m,v){ if(v<2)return; const ps=ALIGN[v]; for(const r of ps)for(const c of ps){if(m[r][c]!==null)continue; for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++)m[r+dr][c+dc]=(Math.abs(dr)===2||Math.abs(dc)===2)?1:(dr===0&&dc===0?1:0);} }
+  function resFmt(m,n){ [[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]].forEach(([r,c])=>{if(m[r][c]===null)m[r][c]=0;}); for(let i=0;i<8;i++){if(m[8][n-1-i]===null)m[8][n-1-i]=0; if(m[n-1-i][8]===null)m[n-1-i][8]=0;} m[n-8][8]=1; }
+  function encData(bytes,cap){ const bits=[0,1,0,0]; const bl=bytes.length; for(let i=7;i>=0;i--)bits.push((bl>>i)&1); for(const b of bytes)for(let i=7;i>=0;i--)bits.push((b>>i)&1); bits.push(0,0,0,0); while(bits.length%8)bits.push(0); const pad=[0xEC,0x11]; let pi=0; while(bits.length<cap*8)for(let i=7;i>=0;i--)bits.push((pad[pi++%2]>>i)&1); const cw=[]; for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|(bits[i+j]||0);cw.push(b);} return cw; }
+  function place(m,n,cws){ const bits=[]; for(const c of cws)for(let i=7;i>=0;i--)bits.push((c>>i)&1); let bi=0,up=true; for(let col=n-1;col>=1;col-=2){if(col===6)col=5; for(let ri=0;ri<n;ri++){const r=up?n-1-ri:ri; for(let d=0;d<=1;d++){const c=col-d;if(m[r][c]===null){m[r][c]=bi<bits.length?bits[bi++]:0;}}} up=!up;} }
+  function mask(m,n,mk){ const fn=[(r,c)=>(r+c)%2===0,(r,c)=>r%2===0,(r,c)=>c%3===0,(r,c)=>(r+c)%3===0,(r,c)=>(Math.floor(r/2)+Math.floor(c/3))%2===0,(r,c)=>((r*c)%2+(r*c)%3)===0,(r,c)=>((r*c)%2+(r*c)%3)%2===0,(r,c)=>((r+c)%2+(r*c)%3)%2===0][mk]; const cp=m.map(row=>[...row]); for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(cp[r][c]!==null&&cp[r][c]!==1&&m[r][c]!==null&&fn(r,c))cp[r][c]^=1; return cp; }
+  function wFmt(m,n,mk){ const v=FMTM[mk]; const pos=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]]; for(let i=0;i<15;i++)m[pos[i][0]][pos[i][1]]=(v>>(14-i))&1; for(let i=0;i<8;i++)m[8][n-1-i]=(v>>i)&1; for(let i=0;i<7;i++)m[n-7+i][8]=(v>>(14-i))&1; m[n-8][8]=1; }
+  function pen(m,n){ let s=0; for(let r=0;r<n;r++){let k=0,pv=-1; for(let c=0;c<n;c++){const v=m[r][c]??0;if(v===pv){k++;if(k===5)s+=3;else if(k>5)s++;}else{pv=v;k=1;}} k=0;pv=-1; for(let c=0;c<n;c++){const v=m[c][r]??0;if(v===pv){k++;if(k===5)s+=3;else if(k>5)s++;}else{pv=v;k=1;}}} for(let r=0;r<n-1;r++)for(let c=0;c<n-1;c++)if(m[r][c]===m[r+1][c]&&m[r][c]===m[r][c+1]&&m[r][c]===m[r+1][c+1])s+=3; return s; }
+  function toSVG(m,sz=4){ const n=m.length,q=4*sz,dim=n*sz+q*2; let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="${dim}" height="${dim}"><rect width="${dim}" height="${dim}" fill="#fff"/>`; for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(m[r][c])s+=`<rect x="${q+c*sz}" y="${q+r*sz}" width="${sz}" height="${sz}" fill="#000"/>`; return s+'</svg>'; }
+  return {
+    svg(text, sz=3){
+      const bytes=new TextEncoder().encode(text);
+      const v=ver(bytes.length); if(!v)return null;
+      const [dc,ec,blk]=VI[v]; const n=17+4*v;
+      const gen=rsGen(ec); const cws=encData(bytes,dc);
+      const ecws=rsEnc(cws,gen); const all=[...cws,...ecws];
+      const base=mk(n);
+      setFinder(base,0,0);setFinder(base,0,n-7);setFinder(base,n-7,0);
+      setSep(base,n);setTime(base,n);setAlign(base,v);base[4*v+9][8]=1;resFmt(base,n);
+      place(base,n,all);
+      let best=null,bestPen=Infinity;
+      for(let mk2=0;mk2<8;mk2++){ const masked=mask(base,n,mk2); wFmt(masked,n,mk2); const p=pen(masked,n); if(p<bestPen){bestPen=p;best=masked;} }
+      return toSVG(best,sz);
+    }
+  };
+})();
+
+// ════════════════════════════════════════════════════
+// DRAG & DROP TAB
+// ════════════════════════════════════════════════════
+
+let _ddSelected = null; // for touch: selected item id
+
+function renderDragDrop(){
+  const items = getItems().filter(i=>!i.boxId);
+  const boxes = getBoxes();
+  const locs = getLocations();
+  const locMap = {}; locs.forEach(l=>locMap[l.id]=l.name);
+  const allItems = getItems();
+  const cnt = {}; allItems.forEach(i=>{ if(i.boxId) cnt[i.boxId]=(cnt[i.boxId]||0)+1; });
+
+  document.getElementById('dd-unassigned-count').textContent =
+    items.length ? `${items.length} item(s) aguardando caixa` : 'Todos os itens estão organizados!';
+  const countEl = document.getElementById('dd-items-count');
+  countEl.textContent = items.length || '';
+  countEl.style.display = items.length ? '' : 'none';
+
+  // Items pool
+  const pool = document.getElementById('dd-items-pool');
+  if(!items.length){
+    pool.innerHTML = '<div class="dd-empty">🎉 Nenhum item sem caixa!</div>';
+  } else {
+    pool.innerHTML = items.map(i=>`
+      <div class="dd-card" id="ddc-${i.id}" draggable="true"
+        data-id="${i.id}"
+        ondragstart="ddDragStart(event,'${i.id}')"
+        ondragend="ddDragEnd(event)"
+        onclick="ddTouchSelect('${i.id}',this)">
+        ${esc(i.name)}
+        ${i.category?`<span style="font-weight:400;color:var(--muted);font-size:.75rem"> · ${esc(i.category)}</span>`:''}
+        ${i.quantity>1?`<span style="font-size:.75rem;color:var(--muted)"> ×${i.quantity}</span>`:''}
+      </div>`).join('');
+  }
+
+  // Boxes
+  const bl = document.getElementById('dd-boxes-list');
+  if(!boxes.length){
+    bl.innerHTML = '<div class="dd-empty">Crie caixas primeiro.</div>';
+  } else {
+    bl.innerHTML = boxes.map(b=>`
+      <div class="dd-box-target" id="ddb-${b.id}"
+        ondragover="ddDragOver(event)"
+        ondragleave="ddDragLeave(event)"
+        ondrop="ddDrop(event,'${b.id}')"
+        onclick="ddTouchDrop('${b.id}')">
+        <div class="dd-box-name">${esc(b.name)}</div>
+        <div class="dd-box-meta">📍 ${esc(locMap[b.locationId]||'—')}${b.category?` · ${esc(b.category)}`:''}</div>
+        <div class="dd-box-items">${cnt[b.id]||0} item(s) na caixa</div>
+      </div>`).join('');
+  }
+  _ddSelected = null;
+}
+
+let _ddDragId = null;
+function ddDragStart(e, id){ _ddDragId=id; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
+function ddDragEnd(e){ e.currentTarget.classList.remove('dragging'); _ddDragId=null; }
+function ddDragOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function ddDragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+function ddDrop(e, boxId){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!_ddDragId) return;
+  ddMoveItem(_ddDragId, boxId);
+}
+
+function ddTouchSelect(id, el){
+  if(_ddSelected === id){ _ddSelected=null; el.classList.remove('selected'); return; }
+  document.querySelectorAll('.dd-card.selected').forEach(c=>c.classList.remove('selected'));
+  _ddSelected = id; el.classList.add('selected');
+  document.querySelectorAll('.dd-box-target').forEach(b=>b.classList.add('touch-selected'));
+  toast('Agora toque em uma caixa para mover o item.','info',2500);
+}
+
+function ddTouchDrop(boxId){
+  if(!_ddSelected) return;
+  document.querySelectorAll('.dd-box-target').forEach(b=>b.classList.remove('touch-selected'));
+  ddMoveItem(_ddSelected, boxId);
+}
+
+function ddMoveItem(itemId, boxId){
+  const item = getItems().find(x=>x.id===itemId); if(!item) return;
+  const box = getBoxes().find(b=>b.id===boxId); if(!box) return;
+  recordHistory(item, boxId, box.locationId||item.locationId);
+  saveItem({...item, boxId, locationId:box.locationId||item.locationId});
+  renderDragDrop(); updateNavBadge(); renderHome();
+  toast(`"${item.name}" → ${box.name}`, 'success');
+}
+
+// ════════════════════════════════════════════════════
+// CSV EXPORT
+// ════════════════════════════════════════════════════
+
+function exportCSV(){
+  const items = getItems();
+  const boxes = getBoxes(); const boxMap={};
+  boxes.forEach(b=>boxMap[b.id]=b.name);
+  const locs = getLocations(); const locMap={};
+  locs.forEach(l=>locMap[l.id]=l.name);
+
+  const csvRow = (...cols) => cols.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',');
+  const header = csvRow('Nome','Categoria','Caixa','Localidade','Quantidade','Estado','Tags','Sinônimos','Posição interna','Observações');
+  const rows = items.map(i=>csvRow(
+    i.name, i.category||'', boxMap[i.boxId]||'', locMap[i.locationId]||'',
+    i.quantity||1, i.state||'desconhecido', i.tags||'',
+    i.synonyms||'', i.internalPosition||'', i.observations||''
+  ));
+  const csv = [header,...rows].join('\r\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `inventario_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('CSV exportado!','success');
+}
+
+// ════════════════════════════════════════════════════
+// HISTORY VIEW
+// ════════════════════════════════════════════════════
+
+function openHistory(){
+  const history = getHistory();
+  const boxes = getBoxes(); const boxMap={};
+  boxes.forEach(b=>boxMap[b.id]=b.name);
+  const locs = getLocations(); const locMap={};
+  locs.forEach(l=>locMap[l.id]=l.name);
+
+  const body = document.getElementById('m-history-body');
+  if(!history.length){
+    body.innerHTML='<div class="empty"><div class="empty-icon">📋</div>Nenhuma movimentação registrada ainda.</div>';
+  } else {
+    body.innerHTML = history.map(h=>{
+      const from = h.fromBoxId ? (boxMap[h.fromBoxId]||'?') : (h.fromLocId ? locMap[h.fromLocId]||'?' : 'sem caixa');
+      const to = h.toBoxId ? (boxMap[h.toBoxId]||'?') : (h.toLocId ? locMap[h.toLocId]||'?' : 'sem caixa');
+      return `<div class="hist-row">
+        <div class="hist-ts">${fmtDate(h.ts)}</div>
+        <div><div class="hist-name">${esc(h.itemName)}</div><div class="hist-move">${esc(from)} → ${esc(to)}</div></div>
+      </div>`;
+    }).join('');
+  }
+  open_('m-history');
+}
+
+// ════════════════════════════════════════════════════
+// GLOBAL KEYBOARD & OVERLAY UX
+// ════════════════════════════════════════════════════
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const open = document.querySelector('.overlay.open');
+    if (open) close(open.id);
+  }
+});
+
+document.querySelectorAll && document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) close(ov.id); });
+  });
+});
+
+let _searchDebounce = null;
+function debouncedSearch(){
+  clearTimeout(_searchDebounce);
+  _searchDebounce = setTimeout(doSearch, 300);
+}
+
+// ════════════════════════════════════════════════════
+// CUSTOM CONFIRM DIALOG
+// ════════════════════════════════════════════════════
+
+let _confirmCb = null;
+function confirmDialog(msg, cb, okLabel='Confirmar', okCls='btn-danger'){
+  document.getElementById('m-confirm-msg').textContent = msg;
+  const ok = document.getElementById('m-confirm-ok');
+  ok.textContent = okLabel;
+  ok.className = `btn ${okCls}`;
+  _confirmCb = cb;
+  open_('m-confirm');
+}
+function _confirmOk(){ close('m-confirm'); if(_confirmCb){ _confirmCb(); _confirmCb=null; } }
+function _confirmCancel(){ close('m-confirm'); _confirmCb=null; }
+
+// ════════════════════════════════════════════════════
+// UNDO DELETE
+// ════════════════════════════════════════════════════
+
+let _undoItem = null, _undoTimer = null, _undoEl = null;
+
+function delItemWithUndo(id){
+  const item = getItems().find(x=>x.id===id);
+  if(!item) return;
+  deleteItem(id); refreshAll();
+  _undoItem = item;
+  if(_undoEl){ clearTimeout(_undoTimer); _undoEl.remove(); }
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast t-info';
+  el.style.cssText = 'display:flex;align-items:center;gap:10px;max-width:320px';
+  el.innerHTML = `<span style="flex:1">Item excluído.</span><button onclick="undoDeleteItem()" style="background:rgba(255,255,255,.25);border:none;color:#fff;padding:2px 10px;border-radius:6px;cursor:pointer;font-size:.82rem;font-weight:700">Desfazer</button>`;
+  c.appendChild(el);
+  _undoEl = el;
+  _undoTimer = setTimeout(()=>{ el.remove(); _undoItem=null; _undoEl=null; }, 5000);
+}
+
+function undoDeleteItem(){
+  if(!_undoItem) return;
+  clearTimeout(_undoTimer);
+  saveItem(_undoItem); refreshAll();
+  if(_undoEl){ _undoEl.remove(); _undoEl=null; }
+  _undoItem = null;
+  toast('Exclusão desfeita!','success');
+}
+
+// ════════════════════════════════════════════════════
+// MOVEMENT HISTORY
+// ════════════════════════════════════════════════════
+
+function recordHistory(item, newBoxId, newLocId){
+  const d = _load();
+  if(!d.history) d.history = [];
+  if(item.boxId === newBoxId && item.locationId === newLocId) return;
+  d.history.unshift({
+    id: uid(), itemId: item.id, itemName: item.name,
+    fromBoxId: item.boxId||'', toBoxId: newBoxId||'',
+    fromLocId: item.locationId||'', toLocId: newLocId||'',
+    ts: now()
+  });
+  if(d.history.length > 200) d.history = d.history.slice(0,200);
+  _save(d);
+}
+
+function getHistory(){ return (_load().history||[]); }
 
 // ════════════════════════════════════════════════════
 // INIT
@@ -1483,6 +1882,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initData();
   renderHome();
   updateNavBadge();
+  // overlay click-to-close
+  document.querySelectorAll('.overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) close(ov.id); });
+  });
 });
 </script>
 </body>
