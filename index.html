@@ -605,18 +605,26 @@ function _load() {
   return _cache;
 }
 function _empty() { return { locations:[], boxes:[], items:[], history:[], lastUpdated:'' }; }
+function _flushSave() {
+  if (!_cache) return;
+  try { localStorage.setItem(KEY, JSON.stringify(_cache)); }
+  catch(e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22)
+      toast('Armazenamento cheio! Exporte seus dados agora para evitar perda.', 'error');
+  }
+}
+
 function _save(d) {
   _cache = d;
   d.lastUpdated = new Date().toISOString();
   clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(d)); }
-    catch(e) {
-      if (e.name === 'QuotaExceededError' || e.code === 22)
-        toast('Armazenamento cheio! Exporte seus dados agora para evitar perda.', 'error');
-    }
-  }, 400);
+  // Write-through immediately for safety; debounce only the expensive serialize
+  _flushSave();
 }
+
+// Belt-and-suspenders: also flush on page hide (covers mobile/PWA)
+window.addEventListener('pagehide', _flushSave);
+window.addEventListener('beforeunload', _flushSave);
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function now() { return new Date().toISOString(); }
@@ -1598,43 +1606,152 @@ function printLabel(){
 // ════════════════════════════════════════════════════
 // QR CODE GENERATOR (minimal, byte mode, ECC-M, v1-4)
 // ════════════════════════════════════════════════════
-const QRGen=(()=>{
-  const EXP=new Uint8Array(512),LOG=new Uint8Array(256);
-  (()=>{ let x=1; for(let i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x=(x<<1)^(x&128?285:0);} for(let i=255;i<512;i++)EXP[i]=EXP[i-255]; })();
-  const mul=(a,b)=>a&&b?EXP[LOG[a]+LOG[b]]:0;
-  function rsGen(n){ const g=[1]; for(let i=0;i<n;i++){g.push(0);for(let j=g.length-1;j>0;j--)g[j]=g[j-1]^mul(g[j],EXP[i]);g[0]=mul(g[0],EXP[i]);} return g; }
-  function rsEnc(data,gen){ const n=gen.length-1,r=new Uint8Array(n); for(const b of data){const c=b^r[0];for(let i=0;i<n-1;i++)r[i]=r[i+1]^mul(c,gen[n-1-i]);r[n-1]=mul(c,gen[0]);} return r; }
-  // version info: [dataBytes, ecBytes, blocks] for ECC-M
-  const VI=[[0,0,0],[16,10,1],[28,16,1],[44,26,2],[64,36,2]];
-  const FMTM=[0x5412,0x5125,0x5E7C,0x5B4B,0x45F9,0x40CE,0x4F97,0x4AA0];
-  const ALIGN=[[],[],[6,18],[6,22],[6,26]];
-  function ver(len){ for(let v=1;v<=4;v++)if(len+2<=VI[v][0])return v; return null; }
-  function mk(n){ return Array.from({length:n},()=>new Array(n).fill(null)); }
-  function setFinder(m,r,c){ const p=[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]]; for(let i=0;i<7;i++)for(let j=0;j<7;j++)m[r+i][c+j]=p[i][j]; }
-  function setSep(m,n){ for(let i=0;i<8;i++){m[7][i]=m[i][7]=m[7][n-1-i]=m[i][n-8]=m[n-8][i]=m[n-1-i][7]=0;} }
-  function setTime(m,n){ for(let i=8;i<n-8;i++){m[6][i]=m[i][6]=i%2?0:1;} }
-  function setAlign(m,v){ if(v<2)return; const ps=ALIGN[v]; for(const r of ps)for(const c of ps){if(m[r][c]!==null)continue; for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++)m[r+dr][c+dc]=(Math.abs(dr)===2||Math.abs(dc)===2)?1:(dr===0&&dc===0?1:0);} }
-  function resFmt(m,n){ [[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]].forEach(([r,c])=>{if(m[r][c]===null)m[r][c]=0;}); for(let i=0;i<8;i++){if(m[8][n-1-i]===null)m[8][n-1-i]=0; if(m[n-1-i][8]===null)m[n-1-i][8]=0;} m[n-8][8]=1; }
-  function encData(bytes,cap){ const bits=[0,1,0,0]; const bl=bytes.length; for(let i=7;i>=0;i--)bits.push((bl>>i)&1); for(const b of bytes)for(let i=7;i>=0;i--)bits.push((b>>i)&1); bits.push(0,0,0,0); while(bits.length%8)bits.push(0); const pad=[0xEC,0x11]; let pi=0; while(bits.length<cap*8)for(let i=7;i>=0;i--)bits.push((pad[pi++%2]>>i)&1); const cw=[]; for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|(bits[i+j]||0);cw.push(b);} return cw; }
-  function place(m,n,cws){ const bits=[]; for(const c of cws)for(let i=7;i>=0;i--)bits.push((c>>i)&1); let bi=0,up=true; for(let col=n-1;col>=1;col-=2){if(col===6)col=5; for(let ri=0;ri<n;ri++){const r=up?n-1-ri:ri; for(let d=0;d<=1;d++){const c=col-d;if(m[r][c]===null){m[r][c]=bi<bits.length?bits[bi++]:0;}}} up=!up;} }
-  function mask(m,n,mk){ const fn=[(r,c)=>(r+c)%2===0,(r,c)=>r%2===0,(r,c)=>c%3===0,(r,c)=>(r+c)%3===0,(r,c)=>(Math.floor(r/2)+Math.floor(c/3))%2===0,(r,c)=>((r*c)%2+(r*c)%3)===0,(r,c)=>((r*c)%2+(r*c)%3)%2===0,(r,c)=>((r+c)%2+(r*c)%3)%2===0][mk]; const cp=m.map(row=>[...row]); for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(cp[r][c]!==null&&cp[r][c]!==1&&m[r][c]!==null&&fn(r,c))cp[r][c]^=1; return cp; }
-  function wFmt(m,n,mk){ const v=FMTM[mk]; const pos=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]]; for(let i=0;i<15;i++)m[pos[i][0]][pos[i][1]]=(v>>(14-i))&1; for(let i=0;i<8;i++)m[8][n-1-i]=(v>>i)&1; for(let i=0;i<7;i++)m[n-7+i][8]=(v>>(14-i))&1; m[n-8][8]=1; }
-  function pen(m,n){ let s=0; for(let r=0;r<n;r++){let k=0,pv=-1; for(let c=0;c<n;c++){const v=m[r][c]??0;if(v===pv){k++;if(k===5)s+=3;else if(k>5)s++;}else{pv=v;k=1;}} k=0;pv=-1; for(let c=0;c<n;c++){const v=m[c][r]??0;if(v===pv){k++;if(k===5)s+=3;else if(k>5)s++;}else{pv=v;k=1;}}} for(let r=0;r<n-1;r++)for(let c=0;c<n-1;c++)if(m[r][c]===m[r+1][c]&&m[r][c]===m[r][c+1]&&m[r][c]===m[r+1][c+1])s+=3; return s; }
-  function toSVG(m,sz=4){ const n=m.length,q=4*sz,dim=n*sz+q*2; let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="${dim}" height="${dim}"><rect width="${dim}" height="${dim}" fill="#fff"/>`; for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(m[r][c])s+=`<rect x="${q+c*sz}" y="${q+r*sz}" width="${sz}" height="${sz}" fill="#000"/>`; return s+'</svg>'; }
+// ════════════════════════════════════════════════════
+// QR CODE GENERATOR — byte mode, ECC-M, versions 1-2
+// Bugs fixed: pad-byte interleaving, function-module masking, format info copy-2
+// ════════════════════════════════════════════════════
+const QRGen = (() => {
+  // GF(256) with primitive poly 0x11d
+  const EX = new Uint8Array(512), LG = new Uint8Array(256);
+  (() => { let x=1; for(let i=0;i<255;i++){EX[i]=x;LG[x]=i;x=(x<<1)^(x&128?0x11d:0);} for(let i=255;i<512;i++)EX[i]=EX[i-255]; })();
+  const gf = (a,b) => a&&b ? EX[LG[a]+LG[b]] : 0;
+
+  // Reed-Solomon generator polynomial of degree n
+  function mkGen(n) {
+    const g=[1];
+    for(let i=0;i<n;i++){g.push(0);for(let j=g.length-1;j>0;j--)g[j]=g[j-1]^gf(g[j],EX[i]);g[0]=gf(g[0],EX[i]);}
+    return g;
+  }
+
+  // RS remainder of data / generator
+  function rsDiv(data,gen) {
+    const n=gen.length-1, r=new Uint8Array(n);
+    for(const b of data){const c=b^r[0];for(let i=0;i<n-1;i++)r[i]=r[i+1]^gf(c,gen[n-1-i]);r[n-1]=gf(c,gen[0]);}
+    return r;
+  }
+
+  // ECC-M single-block info: [dataCodewords, ecCodewords, matrixSize]
+  const VER = [null,{dc:16,ec:10,n:21},{dc:28,ec:16,n:25}]; // v1=14 bytes, v2=26 bytes
+
+  // Format info words for ECC-M, masks 0-7 (from ISO 18004 spec)
+  const FMT = [0x5412,0x5125,0x5E7C,0x5B4B,0x45F9,0x40CE,0x4F97,0x4AA0];
+
+  // Encode text bytes into data codeword array of length dc
+  function encBytes(bytes, dc) {
+    const bits = [0,1,0,0]; // byte mode indicator
+    const len = bytes.length;
+    for(let i=7;i>=0;i--) bits.push((len>>i)&1); // 8-bit length (v1-9)
+    for(const b of bytes) for(let i=7;i>=0;i--) bits.push((b>>i)&1);
+    // Terminator: up to 4 zeros
+    const term = Math.min(bits.length+4, dc*8);
+    while(bits.length < term) bits.push(0);
+    // Byte-align
+    while(bits.length%8) bits.push(0);
+    // Pad bytes: alternate 0xEC and 0x11 (fixed: one full byte at a time)
+    const PAD = [0xEC,0x11];
+    let pi = 0;
+    while(bits.length < dc*8) { const pb=PAD[pi++%2]; for(let i=7;i>=0;i--) bits.push((pb>>i)&1); }
+    // Pack into codewords
+    const cw=[];
+    for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|(bits[i+j]||0);cw.push(b);}
+    return cw;
+  }
+
+  // Build one QR matrix for given version, codewords and mask number
+  // Returns {mod: 2d array of 0/1, score: penalty score}
+  function buildQR(v, codewords, maskNum) {
+    const {n} = VER[v];
+    const mod = Array.from({length:n}, ()=>new Uint8Array(n));
+    const isF = Array.from({length:n}, ()=>new Uint8Array(n)); // 1=function pattern module
+
+    function setF(r,c,val) { if(r>=0&&r<n&&c>=0&&c<n){mod[r][c]=val;isF[r][c]=1;} }
+
+    // Finder pattern (7×7) + separator border at given top-left corner
+    function finder(br,bc) {
+      const P=[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]];
+      for(let dr=0;dr<7;dr++) for(let dc=0;dc<7;dc++) setF(br+dr,bc+dc,P[dr][dc]);
+      // Separator: 1-module border of zeros around finder
+      for(let i=-1;i<=7;i++){setF(br-1,bc+i,0);setF(br+7,bc+i,0);setF(br+i,bc-1,0);setF(br+i,bc+7,0);}
+    }
+    finder(0,0); finder(0,n-7); finder(n-7,0);
+
+    // Timing patterns (row 6, col 6)
+    for(let i=8;i<n-8;i++){setF(6,i,i%2?0:1);setF(i,6,i%2?0:1);}
+
+    // Dark module (always 1)
+    setF(4*v+9,8,1);
+
+    // Reserve format info areas (both copies) — mark as function, initialize to 0
+    const FP=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+    FP.forEach(([r,c])=>setF(r,c,0));
+    for(let i=0;i<8;i++){setF(8,n-1-i,0);setF(n-1-i,8,0);}
+
+    // Place data codewords into non-function modules
+    const bits=[];
+    for(const cw of codewords) for(let i=7;i>=0;i--) bits.push((cw>>i)&1);
+    let bi=0, up=true;
+    for(let col=n-1;col>=1;col-=2){
+      if(col===6) col=5; // skip timing column
+      for(let ri=0;ri<n;ri++){
+        const r=up?n-1-ri:ri;
+        for(let d=0;d<=1;d++){
+          const c=col-d;
+          if(!isF[r][c]) mod[r][c]=bi<bits.length?bits[bi++]:0;
+        }
+      }
+      up=!up;
+    }
+
+    // Apply mask to data modules ONLY (not function patterns)
+    const MASKS=[(r,c)=>(r+c)%2===0,(r,c)=>r%2===0,(r,c)=>c%3===0,(r,c)=>(r+c)%3===0,
+                 (r,c)=>(~~(r/2)+~~(c/3))%2===0,(r,c)=>(r*c)%2+(r*c)%3===0,
+                 (r,c)=>((r*c)%2+(r*c)%3)%2===0,(r,c)=>((r+c)%2+(r*c)%3)%2===0];
+    const mfn = MASKS[maskNum];
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(!isF[r][c]&&mfn(r,c)) mod[r][c]^=1;
+
+    // Write format info (copy 1: top-left)
+    const fw = FMT[maskNum];
+    FP.forEach(([r,c],i)=>{ mod[r][c]=(fw>>(14-i))&1; });
+    // Copy 2: top-right (row 8, cols n-1..n-8 = bits 0..7)
+    for(let i=0;i<8;i++) mod[8][n-1-i]=(fw>>i)&1;
+    // Copy 2: bottom-left (col 8, rows n-7..n-1 = bits 8..14)
+    for(let i=8;i<15;i++) mod[n-15+i][8]=(fw>>i)&1;
+    mod[4*v+9][8]=1; // dark module always 1
+
+    // Penalty score (rules 1 & 2 — sufficient for mask selection)
+    let score=0;
+    for(let r=0;r<n;r++){let k=1;for(let c=1;c<n;c++){if(mod[r][c]===mod[r][c-1]){k++;if(k===5)score+=3;else if(k>5)score++;}else k=1;}}
+    for(let c=0;c<n;c++){let k=1;for(let r=1;r<n;r++){if(mod[r][c]===mod[r-1][c]){k++;if(k===5)score+=3;else if(k>5)score++;}else k=1;}}
+    for(let r=0;r<n-1;r++) for(let c=0;c<n-1;c++) if(mod[r][c]===mod[r+1][c]&&mod[r][c]===mod[r][c+1]&&mod[r][c]===mod[r+1][c+1]) score+=3;
+
+    return {mod, score};
+  }
+
   return {
-    svg(text, sz=3){
-      const bytes=new TextEncoder().encode(text);
-      const v=ver(bytes.length); if(!v)return null;
-      const [dc,ec,blk]=VI[v]; const n=17+4*v;
-      const gen=rsGen(ec); const cws=encData(bytes,dc);
-      const ecws=rsEnc(cws,gen); const all=[...cws,...ecws];
-      const base=mk(n);
-      setFinder(base,0,0);setFinder(base,0,n-7);setFinder(base,n-7,0);
-      setSep(base,n);setTime(base,n);setAlign(base,v);base[4*v+9][8]=1;resFmt(base,n);
-      place(base,n,all);
-      let best=null,bestPen=Infinity;
-      for(let mk2=0;mk2<8;mk2++){ const masked=mask(base,n,mk2); wFmt(masked,n,mk2); const p=pen(masked,n); if(p<bestPen){bestPen=p;best=masked;} }
-      return toSVG(best,sz);
+    svg(text, sz=3) {
+      const bytes = new TextEncoder().encode(text);
+      let v=null;
+      for(let i=1;i<=2;i++) if(bytes.length<=VER[i].dc-2){v=i;break;}
+      if(!v) return null; // text too long (>26 bytes)
+      const {dc,ec} = VER[v];
+      const gen = mkGen(ec);
+      const data = encBytes(bytes, dc);
+      const ecCW = rsDiv(data, gen);
+      const all = [...data, ...ecCW];
+
+      // Try all 8 masks, pick lowest penalty
+      let best=null, bestScore=Infinity;
+      for(let m=0;m<8;m++){
+        const qr=buildQR(v,all,m);
+        if(qr.score<bestScore){bestScore=qr.score;best=qr;}
+      }
+
+      const {mod} = best;
+      const N=VER[v].n, q=4*sz, dim=N*sz+q*2;
+      let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="${dim}" height="${dim}"><rect width="${dim}" height="${dim}" fill="#fff"/>`;
+      for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(mod[r][c])
+        svg+=`<rect x="${q+c*sz}" y="${q+r*sz}" width="${sz}" height="${sz}" fill="#000"/>`;
+      return svg+'</svg>';
     }
   };
 })();
