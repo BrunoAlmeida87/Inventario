@@ -474,7 +474,7 @@ ferro de solda"></textarea>
         <div class="fg"><label>Localidade</label><select id="f-item-loc"></select></div>
       </div>
       <div class="form-row">
-        <div class="fg"><label>Quantidade</label><input type="number" id="f-item-qty" value="1" min="0"></div>
+        <div class="fg"><label>Quantidade <small style="color:var(--muted)">(ou - para n/a)</small></label><input type="text" id="f-item-qty" value="1" inputmode="decimal" style="width:100%"></div>
         <div class="fg"><label>Estado</label>
           <select id="f-item-state">
             <option value="desconhecido">Desconhecido</option>
@@ -757,6 +757,8 @@ function initData() {
 // ════════════════════════════════════════════════════
 
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function parseQty(v){ const s=String(v||'').trim(); if(s==='-'||s==='')return null; const n=parseInt(s); return isNaN(n)?null:Math.max(0,n); }
+function fmtQty(v){ return (v===null||v===undefined||v==='')?'—':String(v); }
 function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
 function tags2html(str, cls='tag-gray'){ return (str||'').split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag ${cls}">${esc(t)}</span>`).join(''); }
 function fmtDate(iso){ return iso ? new Date(iso).toLocaleDateString('pt-BR') : '—'; }
@@ -777,22 +779,14 @@ function toast(msg, type='info', duration=3200){
 
 function open_(id){
   document.getElementById(id).classList.add('open');
-  // move focus to first focusable element
+  // Focus first real input/select/textarea — never buttons (avoids close-button click interference)
   const m = document.getElementById(id);
-  const f = m.querySelector('input:not([type=hidden]),select,textarea,button');
-  if(f) setTimeout(()=>f.focus(), 50);
+  const f = m.querySelector('input:not([type=hidden]):not([readonly]),select,textarea');
+  if(f) setTimeout(()=>{ try{ f.focus(); }catch(_){} }, 60);
 }
 function close(id){
   const el = document.getElementById(id);
   if(el) el.classList.remove('open');
-  // return focus to opener if tracked
-  if(_lastFocused){ _lastFocused.focus(); _lastFocused=null; }
-}
-
-let _lastFocused = null;
-function open_tracked(id){
-  _lastFocused = document.activeElement;
-  open_(id);
 }
 
 // ════════════════════════════════════════════════════
@@ -1012,7 +1006,7 @@ function renderOrganize(){
           ${grpItems.map(item=>`
             <div class="cat-item-row">
               <span class="cat-item-name">${esc(item.name)}</span>
-              <span class="cat-item-qty">${item.quantity>1?`${item.quantity}×`:''}</span>
+              <span class="cat-item-qty">${item.quantity&&item.quantity>1?`${item.quantity}×`:fmtQty(item.quantity)}</span>
               <div style="display:flex;gap:.3rem">
                 <button class="btn btn-xs btn-secondary" onclick="openItemForm('${item.id}',null)">✏️</button>
                 <button class="btn btn-xs btn-danger" onclick="delItem('${item.id}')">🗑️</button>
@@ -1318,7 +1312,7 @@ function viewBox(id){
           <tr>
             <td style="font-weight:600">${esc(i.name)}</td>
             <td>${esc(i.category||'—')}</td>
-            <td>${i.quantity||1}</td>
+            <td>${fmtQty(i.quantity)}</td>
             <td>${stateBadge(i.state)}</td>
             <td style="font-size:.8rem;color:var(--muted)">${esc(i.internalPosition||'—')}</td>
             <td class="td-act">
@@ -1390,7 +1384,7 @@ function renderItems(){
       <td>${esc(i.category||'—')}</td>
       <td>${i.boxId?esc(boxMap[i.boxId]):'<span style="color:var(--warning);font-weight:600">Sem caixa</span>'}</td>
       <td>${esc(locMap[i.locationId]||'—')}</td>
-      <td>${i.quantity||1}</td>
+      <td>${fmtQty(i.quantity)}</td>
       <td>${stateBadge(i.state)}</td>
       <td class="td-act">
         <button class="btn btn-xs btn-secondary" onclick="openItemForm('${i.id}',null)">✏️</button>
@@ -1406,7 +1400,7 @@ function openItemForm(id, defaultBoxId){
   document.getElementById('f-item-id').value=id||'';
   document.getElementById('f-item-name').value=item?item.name:'';
   document.getElementById('f-item-cat').value=item?(item.category||''):'';
-  document.getElementById('f-item-qty').value=item?(item.quantity||1):1;
+  document.getElementById('f-item-qty').value=item?(item.quantity===null||item.quantity===undefined?'-':item.quantity):1;
   document.getElementById('f-item-state').value=item?(item.state||'desconhecido'):'desconhecido';
   document.getElementById('f-item-tags').value=item?(item.tags||''):'';
   document.getElementById('f-item-pos').value=item?(item.internalPosition||''):'';
@@ -1447,7 +1441,7 @@ function saveItem_(){
     category:document.getElementById('f-item-cat').value.trim(),
     boxId:document.getElementById('f-item-box').value,
     locationId:document.getElementById('f-item-loc').value,
-    quantity:parseInt(document.getElementById('f-item-qty').value)||1,
+    quantity:parseQty(document.getElementById('f-item-qty').value),
     state:document.getElementById('f-item-state').value,
     internalPosition:document.getElementById('f-item-pos').value.trim(),
     tags:document.getElementById('f-item-tags').value.trim(),
@@ -1557,8 +1551,8 @@ function renderLabel(){
       ${box.tags?`<div class="tags" style="margin-top:.5rem">${tags2html(box.tags,'tag-purple')}</div>`:''}
       <div class="label-items-list">
         <strong>Conteúdo:</strong>
-        <ul>${top.map(i=>`<li>${esc(i.name)}${i.quantity>1?` (${i.quantity})`:''}</li>`).join('')}
-          ${items.length>8?`<li style="color:var(--muted)">... e mais ${items.length-8} item(s)</li>`:''}
+        <ul>${top.map(i=>`<li>${esc(i.name)}${i.quantity&&i.quantity>1?` (${i.quantity})`:''}</li>`).join('')}
+            ${items.length>8?`<li style="color:var(--muted)">... e mais ${items.length-8} item(s)</li>`:''}
         </ul>
       </div>
       <div class="label-qr">
@@ -1789,7 +1783,7 @@ function renderDragDrop(){
         onclick="ddTouchSelect('${i.id}',this)">
         ${esc(i.name)}
         ${i.category?`<span style="font-weight:400;color:var(--muted);font-size:.75rem"> · ${esc(i.category)}</span>`:''}
-        ${i.quantity>1?`<span style="font-size:.75rem;color:var(--muted)"> ×${i.quantity}</span>`:''}
+        ${i.quantity&&i.quantity>1?`<span style="font-size:.75rem;color:var(--muted)"> ×${i.quantity}</span>`:''}
       </div>`).join('');
   }
 
